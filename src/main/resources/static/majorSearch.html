@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="stylesheet" href="css/font.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <script type="text/javascript" src="js/jquery-3.3.1.js"></script>
+    <script src="lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/admin.js"></script>
+    <title>按专业查询学生总况</title>
+    <style>
+        #search {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body class="login-bg">
+    <form id="search">
+        <div class="layui-form-item">
+            <label class="layui-form-label">查询专业</label>
+            <div class="layui-input-block">
+                <select name="major" id="major" lay-verify="required">
+                    <option value=""></option>
+                    <option value="1501">15级计算机科学与技术</option>
+                    <option value="1502">15级软件工程</option>
+                    <option value="1501">15级网络工程</option>
+                    <option value="1501">15级信息安全</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label"></label>
+            <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+        </div>
+    </form>
+
+
+    <script>
+        // window.onload = function () {
+        //         var majorPath = location.protocol + "//" + window.location.host +
+        //             "/SelectCourse/ListDeptServlet";
+        //         $.ajax({
+        //             type: "get",
+        //             url: deptPath,
+        //             dataType: "json",
+        //             success: function (response) {
+        //                 layui.use('form', function () {
+        //                     var form = layui.form;
+        //                     for (let i = 0; i < response.data.length; i++) {
+        //                         const element = response.data[i];
+        //                         var $option = `<option value='${element.dept_id}'> ${element.dept_name} </option>`;
+        //                         $('#depts').append($option);
+        //                     }
+        //                     form.render();
+        //                 })
+        //             }
+        //         });
+        //     }
+
+        layui.use('form', function() {
+            var form = layui.form;
+            window.onload = function() {
+                var majorPath = location.protocol + "//" + window.location.host +
+                    "/SelectCourse/ListDeptServlet";
+                $.ajax({
+                    type: "get",
+                    url: '#',
+                    dataType: "json",
+                    success: function(response) {
+                        // layui.use('form', function() {
+                        //     var form = layui.form;
+                        //     for (let i = 0; i < response.data.length; i++) {
+                        //         const element = response.data[i];
+                        //         var $option = `<option value='${element.dept_id}'> ${element.dept_name} </option>`;
+                        //         $('#depts').append($option);
+                        //     }
+                        //     form.render();
+                        // })
+                        $('#major').val('1501');
+                        form.render();
+                    }
+                });
+            }
+
+            var path = location.protocol + "//" + window.location.host +
+                "/SelectCourse/AddTeacherServlet";
+            // layui.use('form', function() {
+            //     var form = layui.form;
+            form.on('submit(formDemo)', function(data) {
+                    $.ajax({
+                        type: "post",
+                        url: "#",
+                        data: $('#major'),
+                        dataType: "json",
+                        success: function(response) {
+                            alert(response.msg);
+                            if (code == '成功码') {
+                                var url = "majorStusList.html?majorid=" + obj.data.majorid;
+                                window.location = url;
+                            }
+                        }
+                    });
+                })
+                // })
+            return false;
+        })
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.scoreanalysis.daoExtend.CourseExtendMapper">
+
+    <!-- 根据课程id获取对应课程信息 -->
+    <select id="getCourseById" parameterType="java.lang.String" resultType="com.scoreanalysis.pojo.CourseExtend">
+        select
+        A.cid as courseId, A.cname as courseName, A.credit as credit
+        from course A where A.cid = #{cid}
+    </select>
+
+    <!-- 获取学生的教学计划信息 -->
+    <!--<select id="getStudentPlanId" resultType="java.lang.String">-->
+        <!--select-->
+        <!--B.mplan-->
+        <!--from student A join major B on A.smajor = B.mid-->
+    <!--</select>-->
+</mapper>

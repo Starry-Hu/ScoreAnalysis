@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.scoreanalysis.mapper.StuClassMapper">
+  <resultMap id="BaseResultMap" type="com.scoreanalysis.bean.StuClass">
+    <id column="clsid" jdbcType="VARCHAR" property="clsid" />
+    <result column="cls_name" jdbcType="VARCHAR" property="clsName" />
+    <result column="cls_major" jdbcType="VARCHAR" property="clsMajor" />
+    <result column="isDel" jdbcType="INTEGER" property="isdel" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    clsid, cls_name, cls_major, isDel
+  </sql>
+  <select id="selectByExample" parameterType="com.scoreanalysis.bean.StuClassExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from stu_class
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from stu_class
+    where clsid = #{clsid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from stu_class
+    where clsid = #{clsid,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.scoreanalysis.bean.StuClassExample">
+    delete from stu_class
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.scoreanalysis.bean.StuClass">
+    insert into stu_class (clsid, cls_name, cls_major, 
+      isDel)
+    values (#{clsid,jdbcType=VARCHAR}, #{clsName,jdbcType=VARCHAR}, #{clsMajor,jdbcType=VARCHAR}, 
+      #{isdel,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.scoreanalysis.bean.StuClass">
+    insert into stu_class
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="clsid != null">
+        clsid,
+      </if>
+      <if test="clsName != null">
+        cls_name,
+      </if>
+      <if test="clsMajor != null">
+        cls_major,
+      </if>
+      <if test="isdel != null">
+        isDel,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="clsid != null">
+        #{clsid,jdbcType=VARCHAR},
+      </if>
+      <if test="clsName != null">
+        #{clsName,jdbcType=VARCHAR},
+      </if>
+      <if test="clsMajor != null">
+        #{clsMajor,jdbcType=VARCHAR},
+      </if>
+      <if test="isdel != null">
+        #{isdel,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.scoreanalysis.bean.StuClassExample" resultType="java.lang.Long">
+    select count(*) from stu_class
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update stu_class
+    <set>
+      <if test="record.clsid != null">
+        clsid = #{record.clsid,jdbcType=VARCHAR},
+      </if>
+      <if test="record.clsName != null">
+        cls_name = #{record.clsName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.clsMajor != null">
+        cls_major = #{record.clsMajor,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isdel != null">
+        isDel = #{record.isdel,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update stu_class
+    set clsid = #{record.clsid,jdbcType=VARCHAR},
+      cls_name = #{record.clsName,jdbcType=VARCHAR},
+      cls_major = #{record.clsMajor,jdbcType=VARCHAR},
+      isDel = #{record.isdel,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.scoreanalysis.bean.StuClass">
+    update stu_class
+    <set>
+      <if test="clsName != null">
+        cls_name = #{clsName,jdbcType=VARCHAR},
+      </if>
+      <if test="clsMajor != null">
+        cls_major = #{clsMajor,jdbcType=VARCHAR},
+      </if>
+      <if test="isdel != null">
+        isDel = #{isdel,jdbcType=INTEGER},
+      </if>
+    </set>
+    where clsid = #{clsid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.scoreanalysis.bean.StuClass">
+    update stu_class
+    set cls_name = #{clsName,jdbcType=VARCHAR},
+      cls_major = #{clsMajor,jdbcType=VARCHAR},
+      isDel = #{isdel,jdbcType=INTEGER}
+    where clsid = #{clsid,jdbcType=VARCHAR}
+  </update>
+</mapper>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="stylesheet" href="css/font.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <script type="text/javascript" src="js/jquery-3.3.1.js"></script>
+    <script src="lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/admin.js"></script>
+    <title>学生总况</title>
+</head>
+
+<body class="layui-anim layui-anim-up">
+    <div class="x-nav">
+        <span class="layui-breadcrumb">
+            <a href="">首页</a>
+            <a href="">演示</a>
+            <a>
+                <cite>导航元素</cite></a>
+        </span>
+        <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+            <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+    </div>
+    <div class="x-body">
+
+        <div class="demoTable">
+            搜索ID：
+            <div class="layui-inline">
+                <input class="layui-input" name="id" id="demoReload" autocomplete="off">
+            </div>
+            <div class="layui-btn" data-type="reload" id="search">搜索</div>
+        </div>
+
+
+        <!-- <div class="layui-row">
+            <form class="layui-form layui-col-md12 x-so">
+                         <input class="layui-input" placeholder="开始日" name="start" id="start">
+                <input class="layui-input" placeholder="截止日" name="end" id="end">
+                <input type="text" name="username" placeholder="请输入用户名" autocomplete="off" class="layui-input">
+                <button class="layui-btn" lay-submit="" lay-filter="sreach"><i class="layui-icon">&#xe615;</i></button>
+            </form>
+        </div> -->
+
+        <xblock>
+            <button class="layui-btn layui-btn-danger" onclick="print()"><i class="icon iconfont"></i> 打印表格</button>
+            <button class="layui-btn" onclick="x_admin_show('添加用户','./member-add.html',600,400)"><i class="layui-icon"></i>添加</button>
+            <span class="x-right" style="line-height:40px">共有数据：88 条</span>
+        </xblock>
+
+        <table id="students" lay-filter="test"></table>
+    </div>
+
+    <!-- <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-xs" lay-event="detail">查看</a>
+        <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    </script> -->
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-sm" lay-event="inform">通知</a>
+    </script>
+    <script>
+        // layui.use('table', function() {
+        //     var table = layui.table;
+        //     var path = location.protocol + "//" + window.location.host +
+        //         "/SelectCourse/TestServlet";
+        //     //学生列表显示
+        //     table.render({
+        //         elem: '#students',
+        //         height: 500,
+        //         url: path, //数据接口
+        //         page: true, //开启分页
+        //         cols: [
+        //             [ //表头
+        //                 {
+        //                     field: 'sid',
+        //                     title: '学生ID',
+        //                     sort: true,
+        //                 }, {
+        //                     field: 'sname',
+        //                     title: '学生名称',
+        //                 }, {
+        //                     fixed: 'right',
+        //                     width: 150,
+        //                     align: 'center',
+        //                     toolbar: '#barDemo'
+        //                 } //这里的toolbar值是模板元素的选择器
+        //             ]
+        //         ]
+        //     });
+        // })
+
+
+        layui.use('table', function() {
+            var table = layui.table;
+
+            //展示已知数据
+            table.render({
+                elem: '#students',
+                // toolbar: true,
+
+                cols: [
+                    [ //标题栏
+                        {
+                            type: 'numbers'
+                        }, {
+                            field: 'sid',
+                            title: '学号',
+                            width: 150,
+                            sort: true
+                        }, {
+                            field: 'sname',
+                            title: '姓名',
+                            width: 150
+                        }, {
+                            field: 'smajor',
+                            title: '专业',
+                            width: 150
+                        }, {
+                            field: 'sclass',
+                            title: '班级',
+                            width: 150
+                        }, {
+                            field: 'cid', //课程id
+                            title: '未修课程',
+                            minWidth: 200
+
+                        }, {
+                            field: 'cname', //课程名称
+                            title: '课程名称',
+                            minWidth: 160
+                        }, {
+                            field: 'cscore', //课程学分
+                            title: '课程学分',
+                            width: 100
+                        }, {
+                            fixed: 'right',
+                            width: 150,
+                            align: 'center',
+                            toolbar: '#barDemo'
+                        } //这里的toolbar值是模板元素的选择器
+                    ]
+                ],
+                data: [{
+                    "sid": "201509010203",
+                    "sname": "杜甫",
+                    "smajor": "计科",
+                    "sclass": "计科1502",
+                    "cid": "001234",
+                    "cname": "计算机导论",
+                    "cscore": 2
+                }, {
+                    "sid": "201509010215",
+                    "sname": "杜甫",
+                    "smajor": "计科",
+                    "sclass": "计科1502",
+                    "cid": "002341",
+                    "cname": "数据库设计",
+                    "cscore": 2
+                }, {
+                    "sid": "201509040105",
+                    "sname": "李白",
+                    "smajor": "信安",
+                    "sclass": "信安1501",
+                    "cid": "004524",
+                    "cname": "体育",
+                    "cscore": 1
+                }],
+                //,skin: 'line' //表格风格
+                id: 'stuReload',
+                even: true,
+                page: true //是否显示分页
+                    ,
+                limits: [5, 7, 10],
+                limit: 5 //每页默认显示的数量
+            });
+
+            // var active = {
+            //     reload: function() {
+            //         var reload = $('#reload');
+            //         //执行重载
+            //         table.reload('stuReload', {
+            //             url: '#',
+            //             method: 'get',
+            //             page: {
+            //                 curr: 1 //重新从第 1 页开始
+            //             },
+            //             where: { //类似于 data
+            //                 sid: $('#reload').val() //传入搜索的学生id
+            //             }
+            //         });
+            //     }
+            // };
+
+
+            var $ = layui.$,
+                active = {
+                    reload: function() {
+                        var demoReload = $('#demoReload');
+
+                        //执行重载
+                        table.reload('testReload', {
+                            page: {
+                                curr: 1 //重新从第 1 页开始
+                            },
+                            where: {
+                                key: {
+                                    sid: demoReload.val()
+                                }
+                            }
+                        });
+                    }
+                };
+
+            $('#search').on('click', function() {
+                var type = $(this).data('type');
+                active[type] ? active[type].call(this) : '';
+            });
+        })
+    </script>
+
+
+</body>
+
+</html>

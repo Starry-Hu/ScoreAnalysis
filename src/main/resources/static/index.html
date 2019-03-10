@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>学生成绩预警系统</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="stylesheet" href="css/font.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="lib/layui/css/layui.css">
+    <script type="text/javascript" src="js/jquery-3.3.1.js"></script>
+    <!-- <script type="text/javascript" src="js/admin.js"></script> -->
+    <script type="text/javascript" src="js/index.js"></script>
+    <script src="lib/layui/layui.js" charset="utf-8"></script>
+    <style>
+        .copyright {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body class="layui-layout-body">
+    <!-- 顶部开始 -->
+    <!-- <div class="container">
+        <div class="logo">
+            <a href="index.html">学生成绩预警系统</a>
+            <p style="float: right">
+                <a href="#" style="width:100px; cursor:default">欢迎您 <span id="user">XXX</span></a>
+                <a href="#" style="width:100px">修改密码</a>
+                <a href="logout.html">退出</a>
+            </p>
+        </div>
+    </div> -->
+    <div class="layui-layout layui-layout-admin">
+        <div class="layui-header">
+            <div class="layui-logo">学生成绩预警系统</div>
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item">
+                    <a href="javascript:;">
+                        <img src="http://t.cn/RCzsdCq" class="layui-nav-img"> 贤心
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="">基本资料</a></dd>
+                        <dd><a href="">安全设置</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item"><a href="">退了</a></li>
+            </ul>
+        </div>
+        <!-- 顶部结束 -->
+        <!-- 中部开始 -->
+        <!-- 左侧菜单开始 -->
+        <!-- <div class="layui-side left-nav">
+            <div class="layui-side-scroll">
+                <ul id="nav" class="layui-nav layui-nav-tree">
+                    <li>
+                        <a _href="allStusList.html">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>学生总况</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="member-list.html">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>专业总况</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="member-list.html">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>班级总况</cite>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div> -->
+
+        <div class="layui-side layui-bg-black">
+            <div class="layui-side-scroll">
+                <ul id="nav" class="layui-nav layui-nav-tree" lay-filter="test">
+                    <li class="layui-nav-item"><a href="#">专业总况</a></li>
+                    <li class="layui-nav-item"><a href="#">专业总况</a></li>
+                    <li class="layui-nav-item"><a href="#">专业总况</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- <div class="x-slide_left"></div> -->
+        <!-- 左侧菜单结束 -->
+        <!-- 右侧主体开始 -->
+        <div class="layui-body page-content">
+            <div class="layui-tab tab" lay-filter="demo" lay-allowclose="false">
+                <ul class="layui-tab-title">
+                    <li class="home"><i class="layui-icon">&#xe68e;</i>我的桌面</li>
+                </ul>
+                <div class="layui-tab-content">
+                    <div class="layui-tab-item layui-show">
+                        <iframe src='welcome.html' frameborder="0" scrolling="no" class="x-iframe"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-content-bg"></div>
+        <!-- 右侧主体结束 -->
+        <!-- 中部结束 -->
+        <!-- 底部开始 -->
+        <div class="footer">
+            <div class="copyright">Copyright © DreamTech工作组</div>
+        </div>
+        <!-- 底部结束 -->
+    </div>
+
+
+
+    <script>
+        layui.use('element', function() {
+            var $ = layui.jquery,
+                element = layui.element; //Tab的切换功能，切换事件监听等，需要依赖element模块
+            //触发事件
+            var active = {
+                tabAdd: function() {
+                    //新增一个Tab项
+                    element.tabAdd('demo', {
+                        title: '新选项<i class="layui-icon layui-unselect layui-tab-close">&#x1006;</i>' //用于演示
+                            ,
+                        content: '内容' + (Math.random() * 1000 | 0),
+                        id: new Date().getTime() //实际使用一般是规定好的id，这里以时间戳模拟下
+                    });
+                    //增加点击关闭事件  
+                    var r = $(".layui-tab-title").find("li");
+                    //每次新打开tab都是最后一个，所以只对最后一个tab添加点击关闭事件  
+                    r.eq(r.length - 1).children("i").on("click", function() {
+                        alert($(this).parent("li").attr('lay-id'));
+                        element.tabDelete("demo", $(this).parent("li").attr('lay-id'));
+                    }), element.tabChange("demo", r.length - 1);
+                    element.init();
+                },
+                tabDelete: function(othis) {
+                    //删除指定Tab项
+                    element.tabDelete('demo', '44'); //删除：“商品管理”
+
+                    othis.addClass('layui-btn-disabled');
+                },
+                tabChange: function() {
+                    //切换到指定Tab项
+                    element.tabChange('demo', '22'); //切换到：用户管理
+                }
+            };
+            $('.site-demo-active').on('click', function() {
+                var othis = $(this),
+                    type = othis.data('type');
+                active[type] ? active[type].call(this, othis) : '';
+            });
+            //Hash地址的定位
+            var layid = location.hash.replace(/^#test=/, '');
+            element.tabChange('test', layid);
+            element.on('tab(test)', function(elem) {
+                location.hash = 'test=' + $(this).attr('lay-id');
+            });
+        });
+    </script>
+
+
+</body>
+
+</html>
