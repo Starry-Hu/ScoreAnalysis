@@ -6,13 +6,11 @@ public interface AdminService {
 
     int addAdmin(String adminId, String name, String psw) throws Exception;
 
-    int deleteAdminTotal(String id) throws Exception;
+    int deleteAdminLogic(String uuid) throws Exception;
 
-    int deleteAdminLogic(String id) throws Exception;
+    int updateAdmin(String uuid, String name, String psw) throws Exception;
 
-    int updateAdmin(String id, String name, String psw) throws Exception;
-
-    Admin getAdminByuuid(String id) throws Exception;
+    Admin getAdminByuuid(String uuid) throws Exception;
 
     Admin getAdminByAdminId(String AdminId) throws Exception;
 

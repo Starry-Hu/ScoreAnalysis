@@ -48,16 +48,8 @@ public enum  ResultEnum {
     PLAN_SEARCH_SUCCESS(205,"教学计划查找成功"),
     PLAN_INFO_NOT_FULL(211,"信息填写不完全"),
 
-    // 教学计划_课程相关
-    PLAN_COURSE_EXIST(301,"教学计划已存在"),
-    PLAN_COURSE_ADD_SUCCESS(202,"教学计划添加成功"),
-    PLAN_COURSE_DELETE_SUCCESS(203,"教学计划删除成功"),
-    PLAN_COURSE_UPDATE_SUCCESS(204,"教学计划更新成功"),
-    PLAN_COURSE_SEARCH_SUCCESS(205,"教学计划查找成功"),
-    PLAN_COURSE_INFO_NOT_FULL(211,"信息填写不完全"),
-    
-   
-
+    // 上传excel表格相关
+    EXCEL_FORM_ERROR(401,"上传文件格式不正确"),
     ;
     private Integer code;
     private String msg;

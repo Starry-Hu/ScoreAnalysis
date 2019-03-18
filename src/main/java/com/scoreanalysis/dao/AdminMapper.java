@@ -2,8 +2,9 @@ package com.scoreanalysis.dao;
 
 import com.scoreanalysis.bean.Admin;
 import com.scoreanalysis.bean.AdminExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface AdminMapper {
     long countByExample(AdminExample example);

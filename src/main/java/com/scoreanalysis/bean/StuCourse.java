@@ -9,8 +9,6 @@ public class StuCourse {
 
     private Integer score;
 
-    private Integer isdel;
-
     public String getScid() {
         return scid;
     }
@@ -41,13 +39,5 @@ public class StuCourse {
 
     public void setScore(Integer score) {
         this.score = score;
-    }
-
-    public Integer getIsdel() {
-        return isdel;
-    }
-
-    public void setIsdel(Integer isdel) {
-        this.isdel = isdel;
     }
 }

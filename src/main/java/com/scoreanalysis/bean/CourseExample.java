@@ -304,63 +304,63 @@ public class CourseExample {
             return (Criteria) this;
         }
 
-        public Criteria andIsdelIsNull() {
-            addCriterion("isDel is null");
+        public Criteria andIsAcquiredIsNull() {
+            addCriterion("is_acquired is null");
             return (Criteria) this;
         }
 
-        public Criteria andIsdelIsNotNull() {
-            addCriterion("isDel is not null");
+        public Criteria andIsAcquiredIsNotNull() {
+            addCriterion("is_acquired is not null");
             return (Criteria) this;
         }
 
-        public Criteria andIsdelEqualTo(Integer value) {
-            addCriterion("isDel =", value, "isdel");
+        public Criteria andIsAcquiredEqualTo(Integer value) {
+            addCriterion("is_acquired =", value, "isAcquired");
             return (Criteria) this;
         }
 
-        public Criteria andIsdelNotEqualTo(Integer value) {
-            addCriterion("isDel <>", value, "isdel");
+        public Criteria andIsAcquiredNotEqualTo(Integer value) {
+            addCriterion("is_acquired <>", value, "isAcquired");
             return (Criteria) this;
         }
 
-        public Criteria andIsdelGreaterThan(Integer value) {
-            addCriterion("isDel >", value, "isdel");
+        public Criteria andIsAcquiredGreaterThan(Integer value) {
+            addCriterion("is_acquired >", value, "isAcquired");
             return (Criteria) this;
         }
 
-        public Criteria andIsdelGreaterThanOrEqualTo(Integer value) {
-            addCriterion("isDel >=", value, "isdel");
+        public Criteria andIsAcquiredGreaterThanOrEqualTo(Integer value) {
+            addCriterion("is_acquired >=", value, "isAcquired");
             return (Criteria) this;
         }
 
-        public Criteria andIsdelLessThan(Integer value) {
-            addCriterion("isDel <", value, "isdel");
+        public Criteria andIsAcquiredLessThan(Integer value) {
+            addCriterion("is_acquired <", value, "isAcquired");
             return (Criteria) this;
         }
 
-        public Criteria andIsdelLessThanOrEqualTo(Integer value) {
-            addCriterion("isDel <=", value, "isdel");
+        public Criteria andIsAcquiredLessThanOrEqualTo(Integer value) {
+            addCriterion("is_acquired <=", value, "isAcquired");
             return (Criteria) this;
         }
 
-        public Criteria andIsdelIn(List<Integer> values) {
-            addCriterion("isDel in", values, "isdel");
+        public Criteria andIsAcquiredIn(List<Integer> values) {
+            addCriterion("is_acquired in", values, "isAcquired");
             return (Criteria) this;
         }
 
-        public Criteria andIsdelNotIn(List<Integer> values) {
-            addCriterion("isDel not in", values, "isdel");
+        public Criteria andIsAcquiredNotIn(List<Integer> values) {
+            addCriterion("is_acquired not in", values, "isAcquired");
             return (Criteria) this;
         }
 
-        public Criteria andIsdelBetween(Integer value1, Integer value2) {
-            addCriterion("isDel between", value1, value2, "isdel");
+        public Criteria andIsAcquiredBetween(Integer value1, Integer value2) {
+            addCriterion("is_acquired between", value1, value2, "isAcquired");
             return (Criteria) this;
         }
 
-        public Criteria andIsdelNotBetween(Integer value1, Integer value2) {
-            addCriterion("isDel not between", value1, value2, "isdel");
+        public Criteria andIsAcquiredNotBetween(Integer value1, Integer value2) {
+            addCriterion("is_acquired not between", value1, value2, "isAcquired");
             return (Criteria) this;
         }
     }

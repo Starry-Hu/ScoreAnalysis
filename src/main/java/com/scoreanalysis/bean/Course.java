@@ -7,7 +7,7 @@ public class Course {
 
     private Double credit;
 
-    private Integer isdel;
+    private Integer isAcquired;
 
     public String getCid() {
         return cid;
@@ -33,11 +33,11 @@ public class Course {
         this.credit = credit;
     }
 
-    public Integer getIsdel() {
-        return isdel;
+    public Integer getIsAcquired() {
+        return isAcquired;
     }
 
-    public void setIsdel(Integer isdel) {
-        this.isdel = isdel;
+    public void setIsAcquired(Integer isAcquired) {
+        this.isAcquired = isAcquired;
     }
 }

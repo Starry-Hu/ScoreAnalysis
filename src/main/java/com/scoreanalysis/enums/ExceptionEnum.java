@@ -48,13 +48,37 @@ public enum ExceptionEnum {
 
     // 学生相关
     STUDENT_EXIST(101,"学生已经存在"),
-    STUDENT_NO_EXIST(102,"学生不存在")
+    STUDENT_NO_EXIST(102,"学生不存在"),
+    STUDENT_ADD_FAIL(223,"学生添加失败"),
+    STUDENT_DELETE_FAIL(224,"学生删除失败"),
+    STUDENT_UPDATE_FAIL(225,"学生更新失败"),
+    STUDENT_SEARCH_FAIL(226,"学生查找失败"),
+
+    // 班级相关
+    CLASS_EXIST(101,"班级已经存在"),
+    CLASS_NO_EXIST(102,"班级不存在"),
+    CLASS_ADD_FAIL(223,"班级添加失败"),
+    CLASS_DELETE_FAIL(224,"班级删除失败"),
+    CLASS_UPDATE_FAIL(225,"班级更新失败"),
+    CLASS_SEARCH_FAIL(226,"班级查找失败"),
+
+    // 学生课程信息相关
+    STU_COURSE_EXIST(101,"学生课程信息已经存在"),
+    STU_COURSE_NO_EXIST(102,"学生课程信息不存在"),
+    STU_COURSE_ADD_FAIL(223,"学生课程信息添加失败"),
+    STU_COURSE_DELETE_FAIL(224,"学生课程信息删除失败"),
+    STU_COURSE_UPDATE_FAIL(225,"学生课程信息更新失败"),
+    STU_COURSE_SEARCH_FAIL(226,"学生课程信息查找失败"),
+
+    // 上传文件相关
+    UPLOAD_FORM_ERROR(101,"上传文件格式不正确"),
+    UPLOAD_IN_ERROR(102,"导入失败(第\"+(r+1)+\"行,用户名请设为文本格式)")
+
     ;
 
     private Integer code;
 
     private String msg;
-
 
     ExceptionEnum(Integer code, String msg){
         this.code = code;

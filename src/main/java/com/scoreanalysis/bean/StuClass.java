@@ -7,8 +7,6 @@ public class StuClass {
 
     private String clsMajor;
 
-    private Integer isdel;
-
     public String getClsid() {
         return clsid;
     }
@@ -31,13 +29,5 @@ public class StuClass {
 
     public void setClsMajor(String clsMajor) {
         this.clsMajor = clsMajor;
-    }
-
-    public Integer getIsdel() {
-        return isdel;
-    }
-
-    public void setIsdel(Integer isdel) {
-        this.isdel = isdel;
     }
 }

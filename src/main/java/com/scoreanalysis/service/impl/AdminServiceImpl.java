@@ -53,36 +53,15 @@ public class AdminServiceImpl implements AdminService {
     }
 
     /**
-     * @Description: 根据uuid删除管理员 物理删除   待商榷
+     * @Description: 根据uuid删除管理员  逻辑删除
      * @Param: [id]
      * @return: int
      * @Author: 葫芦胡
      * @Date: 2019/2/9
      */
-    public int deleteAdminTotal(String id) throws Exception {
-        try {
-            int n = adminMapper.deleteByPrimaryKey(id);
-            // 删除成功
-            if (n > 0) {
-                return n;
-            }
-            // 抛出删除失败的异常
-            throw new SAException(ExceptionEnum.ADMIN_DELETE_FAIL);
-        } catch (Exception e) {
-            throw e;
-        }
-    }
-
-    /**
-     * @Description: 根据uuid删除管理员  物理删除
-     * @Param: [id]
-     * @return: int
-     * @Author: 葫芦胡
-     * @Date: 2019/2/9
-     */
-    public int deleteAdminLogic(String id) throws Exception {
+    public int deleteAdminLogic(String uuid) throws Exception {
         Admin admin = new Admin();
-        admin.setId(id);
+        admin.setId(uuid);
         admin.setIsdel(1);
         try {
             int n = adminMapper.updateByPrimaryKey(admin);
@@ -103,9 +82,9 @@ public class AdminServiceImpl implements AdminService {
      * @Author: 葫芦胡
      * @Date: 2019/2/9
      */
-    public int updateAdmin(String id, String name, String psw) throws Exception {
+    public int updateAdmin(String uuid, String name, String psw) throws Exception {
         Admin admin = new Admin();
-        admin.setId(id);
+        admin.setId(uuid);
         admin.setName(name);
         admin.setPsw(psw);
 

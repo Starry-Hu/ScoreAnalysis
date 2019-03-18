@@ -7,8 +7,6 @@ public class Major {
 
     private String mplan;
 
-    private Integer isdel;
-
     public String getMid() {
         return mid;
     }
@@ -31,13 +29,5 @@ public class Major {
 
     public void setMplan(String mplan) {
         this.mplan = mplan;
-    }
-
-    public Integer getIsdel() {
-        return isdel;
-    }
-
-    public void setIsdel(Integer isdel) {
-        this.isdel = isdel;
     }
 }

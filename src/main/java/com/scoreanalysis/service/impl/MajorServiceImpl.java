@@ -5,8 +5,17 @@ import com.scoreanalysis.dao.MajorMapper;
 import com.scoreanalysis.enums.ExceptionEnum;
 import com.scoreanalysis.exception.SAException;
 import com.scoreanalysis.service.MajorService;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.InputStream;
+
 
 /**
  * @Project scoreanalysis
@@ -32,7 +41,6 @@ public class MajorServiceImpl implements MajorService {
         major.setMid(mid);
         major.setMname(mname);
         major.setMplan(mplan);
-        major.setIsdel(0);
 
         try {
             int n = majorMapper.insert(major);
@@ -52,11 +60,8 @@ public class MajorServiceImpl implements MajorService {
     * @Date: 2019/3/5 
     */ 
     public int deleteMajor(String mid) throws Exception{
-        Major major = new Major();
-        major.setMid(mid);
-        major.setIsdel(1);
         try {
-            int n = majorMapper.updateByPrimaryKeySelective(major);
+            int n = majorMapper.deleteByPrimaryKey(mid);
             if (n > 0){
                 return n;
             }throw new SAException(ExceptionEnum.MAJOR_DELETE_FAIL);
@@ -97,12 +102,30 @@ public class MajorServiceImpl implements MajorService {
     */
     public Major getMajorById(String mid) throws Exception{
         Major major = majorMapper.selectByPrimaryKey(mid);
-        if (major == null || major.getIsdel() == 1){
+        if (major == null){
             throw new SAException(ExceptionEnum.MAJOR_NO_EXIST);
         }return major;
     };
 
+    @Transactional(readOnly = false, rollbackFor = Exception.class)
+    @Override
+    public boolean batchUpload(String fileName, MultipartFile file, boolean isExcel2003) throws Exception{
+        boolean notNull = false;
 
+        InputStream is = file.getInputStream();
+        Workbook wb = null;
+        if (isExcel2003) {
+            wb = new HSSFWorkbook(is);
+        } else {
+            wb = new XSSFWorkbook(is);
+        }
+        Sheet sheet = wb.getSheetAt(0);
+        if (sheet != null) {
+            notNull = true;
+        }
+
+        return false;
+    };
 
 
 
@@ -115,7 +138,7 @@ public class MajorServiceImpl implements MajorService {
     */
     public Major findMajorById(String mid){
         Major major = majorMapper.selectByPrimaryKey(mid);
-        if (major == null || major.getIsdel() == 1){
+        if (major == null){
             return null;
         }return major;
     }

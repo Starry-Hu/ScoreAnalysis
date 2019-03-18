@@ -5,7 +5,7 @@
     <id column="cid" jdbcType="VARCHAR" property="cid" />
     <result column="cname" jdbcType="VARCHAR" property="cname" />
     <result column="credit" jdbcType="DOUBLE" property="credit" />
-    <result column="isDel" jdbcType="INTEGER" property="isdel" />
+    <result column="is_acquired" jdbcType="INTEGER" property="isAcquired" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -66,7 +66,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    cid, cname, credit, isDel
+    cid, cname, credit, is_acquired
   </sql>
   <select id="selectByExample" parameterType="com.scoreanalysis.bean.CourseExample" resultMap="BaseResultMap">
     select
@@ -101,9 +101,9 @@
   </delete>
   <insert id="insert" parameterType="com.scoreanalysis.bean.Course">
     insert into course (cid, cname, credit, 
-      isDel)
+      is_acquired)
     values (#{cid,jdbcType=VARCHAR}, #{cname,jdbcType=VARCHAR}, #{credit,jdbcType=DOUBLE}, 
-      #{isdel,jdbcType=INTEGER})
+      #{isAcquired,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="com.scoreanalysis.bean.Course">
     insert into course
@@ -117,8 +117,8 @@
       <if test="credit != null">
         credit,
       </if>
-      <if test="isdel != null">
-        isDel,
+      <if test="isAcquired != null">
+        is_acquired,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -131,8 +131,8 @@
       <if test="credit != null">
         #{credit,jdbcType=DOUBLE},
       </if>
-      <if test="isdel != null">
-        #{isdel,jdbcType=INTEGER},
+      <if test="isAcquired != null">
+        #{isAcquired,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -154,8 +154,8 @@
       <if test="record.credit != null">
         credit = #{record.credit,jdbcType=DOUBLE},
       </if>
-      <if test="record.isdel != null">
-        isDel = #{record.isdel,jdbcType=INTEGER},
+      <if test="record.isAcquired != null">
+        is_acquired = #{record.isAcquired,jdbcType=INTEGER},
       </if>
     </set>
     <if test="_parameter != null">
@@ -167,7 +167,7 @@
     set cid = #{record.cid,jdbcType=VARCHAR},
       cname = #{record.cname,jdbcType=VARCHAR},
       credit = #{record.credit,jdbcType=DOUBLE},
-      isDel = #{record.isdel,jdbcType=INTEGER}
+      is_acquired = #{record.isAcquired,jdbcType=INTEGER}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -181,8 +181,8 @@
       <if test="credit != null">
         credit = #{credit,jdbcType=DOUBLE},
       </if>
-      <if test="isdel != null">
-        isDel = #{isdel,jdbcType=INTEGER},
+      <if test="isAcquired != null">
+        is_acquired = #{isAcquired,jdbcType=INTEGER},
       </if>
     </set>
     where cid = #{cid,jdbcType=VARCHAR}
@@ -191,7 +191,7 @@
     update course
     set cname = #{cname,jdbcType=VARCHAR},
       credit = #{credit,jdbcType=DOUBLE},
-      isDel = #{isdel,jdbcType=INTEGER}
+      is_acquired = #{isAcquired,jdbcType=INTEGER}
     where cid = #{cid,jdbcType=VARCHAR}
   </update>
 </mapper>

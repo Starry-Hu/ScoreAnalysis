@@ -2,7 +2,6 @@ package com.scoreanalysis.controller;
 
 import com.scoreanalysis.bean.Course;
 import com.scoreanalysis.enums.ResultEnum;
-import com.scoreanalysis.exception.SAException;
 import com.scoreanalysis.service.CourseService;
 import com.scoreanalysis.util.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +66,7 @@ public class CourseController extends BaseController {
         // 查找原课程是否存在
         Course course = courseService.getCourseById(cid);
         // 删除课程
-        courseService.deleteCourseLogic(cid);
+        courseService.deleteCourse(cid);
         return ajaxSucc(null,ResultEnum.COURSE_DELETE_SUCCESS);
     }
 

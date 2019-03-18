@@ -7,8 +7,6 @@ public class Plan {
 
     private String planYear;
 
-    private Integer isdel;
-
     public String getPlanId() {
         return planId;
     }
@@ -31,13 +29,5 @@ public class Plan {
 
     public void setPlanYear(String planYear) {
         this.planYear = planYear;
-    }
-
-    public Integer getIsdel() {
-        return isdel;
-    }
-
-    public void setIsdel(Integer isdel) {
-        this.isdel = isdel;
     }
 }

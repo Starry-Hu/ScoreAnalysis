@@ -7,8 +7,6 @@ public class PlanCourse {
 
     private String cid;
 
-    private Integer isdel;
-
     public String getPcid() {
         return pcid;
     }
@@ -31,13 +29,5 @@ public class PlanCourse {
 
     public void setCid(String cid) {
         this.cid = cid;
-    }
-
-    public Integer getIsdel() {
-        return isdel;
-    }
-
-    public void setIsdel(Integer isdel) {
-        this.isdel = isdel;
     }
 }

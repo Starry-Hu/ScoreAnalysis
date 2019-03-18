@@ -9,8 +9,6 @@ public class Student {
 
     private String smajor;
 
-    private Integer isdel;
-
     public String getSid() {
         return sid;
     }
@@ -41,13 +39,5 @@ public class Student {
 
     public void setSmajor(String smajor) {
         this.smajor = smajor;
-    }
-
-    public Integer getIsdel() {
-        return isdel;
-    }
-
-    public void setIsdel(Integer isdel) {
-        this.isdel = isdel;
     }
 }

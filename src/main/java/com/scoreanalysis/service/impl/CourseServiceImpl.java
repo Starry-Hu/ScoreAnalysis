@@ -8,6 +8,14 @@ import com.scoreanalysis.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * @Project scoreanalysis
+ * @ClassName AdminServiceImpl
+ * @Author StarryHu
+ * @Description 课程相关业务逻辑层
+ * @Date 2019/2/9 19:20
+ */
+
 @Service(value = "courseService")
 public class CourseServiceImpl implements CourseService{
 
@@ -26,7 +34,6 @@ public class CourseServiceImpl implements CourseService{
         course.setCid(cid);
         course.setCname(cname);
         course.setCredit(credit);
-        course.setIsdel(0);
 
         try {
             int n = courseMapper.insert(course);
@@ -46,14 +53,9 @@ public class CourseServiceImpl implements CourseService{
     * @Author: StarryHu
     * @Date: 2019/3/5
     */
-    public int deleteCourseLogic(String cid) throws Exception{
-        Course course = new Course();
-        course.setCid(cid);
-        // 设置为1 逻辑删除
-        course.setIsdel(1);
-
+    public int deleteCourse(String cid) throws Exception{
         try {
-            int n = courseMapper.updateByPrimaryKey(course);
+            int n = courseMapper.deleteByPrimaryKey(cid);
             // 删除成功
             if (n > 0){
                 return n;
@@ -96,7 +98,7 @@ public class CourseServiceImpl implements CourseService{
     public Course getCourseById(String cid) throws Exception{
         Course course = courseMapper.selectByPrimaryKey(cid);
         // 课程不存在时抛异常
-        if (course == null || course.getIsdel() == 1) {
+        if (course == null) {
             throw new SAException(ExceptionEnum.COURSE_NO_EXIST);
         }
         return courseMapper.selectByPrimaryKey(cid);
@@ -112,7 +114,7 @@ public class CourseServiceImpl implements CourseService{
     */
     public Course findCourseById(String cid){
         Course course = courseMapper.selectByPrimaryKey(cid);
-        if (course == null || course.getIsdel() == 1){
+        if (course == null){
             return null;
         }
         return course;

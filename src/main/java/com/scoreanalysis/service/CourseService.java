@@ -5,7 +5,7 @@ import com.scoreanalysis.bean.Course;
 public interface CourseService {
     int addCourse(String cid,String cname,double credit) throws Exception;
 
-    int deleteCourseLogic(String cid) throws Exception;
+    int deleteCourse(String cid) throws Exception;
 
     int updateCourse(String cid,String cname,double credit);
 
