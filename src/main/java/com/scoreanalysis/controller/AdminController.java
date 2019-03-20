@@ -27,16 +27,15 @@ public class AdminController extends BaseController {
 
     /**
      * @Description: 管理员登录
-     * @Param: [id, psw]
+     * @Param: [adminId, psw]
      * @return: com.scoreanalysis.util.BaseResponse
      * @Author: 葫芦胡
      * @Date: 2019/2/9
      */
     @PostMapping("/login")
-    public BaseResponse login(String id,String adminId, String psw, HttpSession session) throws Exception {
+    public BaseResponse login(String adminId, String psw, HttpSession session) throws Exception {
         // 检查内容是否填写完全
-        if (id == null || psw == null || adminId == null ||
-                id.trim().equals("") || psw.trim().equals("") || adminId.trim().equals("")) {
+        if (psw == null || adminId == null || psw.trim().equals("") || adminId.trim().equals("")) {
             return ajaxFail(ResultEnum.ADMIN_INFO_NOT_FULL);
         }
 
@@ -73,6 +72,23 @@ public class AdminController extends BaseController {
             return ajaxSucc(resultMap, ResultEnum.SUCCESS);
         }
         return ajaxFail(ResultEnum.FAIL);
+    }
+
+    /** 
+    * @Description: 退出当前登录管理员
+    * @Param: [session] 
+    * @return: com.scoreanalysis.util.BaseResponse 
+    * @Author: StarryHu
+    * @Date: 2019/3/19 
+    */ 
+    @GetMapping("/logout")
+    public BaseResponse logout(HttpSession session) throws Exception{
+        // 清除session
+        //session.invalidate();
+        session.removeAttribute("aid");
+        session.removeAttribute("adminName");
+        session.removeAttribute("adminId");
+        return ajaxSucc(null, ResultEnum.SUCCESS);
     }
 
     /** 

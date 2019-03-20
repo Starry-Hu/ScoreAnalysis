@@ -12,5 +12,5 @@ public interface PlanService {
 
     boolean batchUpload(String fileName, MultipartFile file, boolean isExcel2003,String planId) throws Exception;
 
-    int deletePlanCourseByPlanId(String planId, String cid) throws Exception;
+    int deletePlanRelated(String planId) throws Exception;
 }

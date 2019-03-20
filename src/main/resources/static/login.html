@@ -16,62 +16,56 @@
 
 <body class="login-bg">
 
-    <div class="login layui-anim layui-anim-up">
-        <div class="message">学生成绩预警管理登录</div>
-        <div id="darkbannerwrap"></div>
+<div class="login layui-anim layui-anim-up">
+    <div class="message">学生成绩预警管理登录</div>
+    <div id="darkbannerwrap"></div>
 
-        <form method="post" class="layui-form">
-            <input name="username" id="username" placeholder="用户名" type="text" lay-verify="required" class="layui-input">
-            <hr class="hr15">
-            <input name="password" id="password" lay-verify="required" placeholder="密码" type="password" class="layui-input">
-            <hr class="hr15">
-            <input value="登录" lay-submit lay-filter="login" style="width:100%;" type="submit">
-            <hr class="hr20">
-        </form>
-    </div>
+    <form method="post" class="layui-form">
+        <input name="adminId" id="adminId" placeholder="用户名" type="text" lay-verify="required" class="layui-input">
+        <hr class="hr15">
+        <input name="psw" id="psw" lay-verify="required" placeholder="密码" type="password" class="layui-input">
+        <hr class="hr15">
+        <input value="登录" lay-submit lay-filter="login" style="width:100%;" type="submit" id="submit">
+        <hr class="hr20">
+    </form>
+</div>
 
 
-    <script type="text/javascript" src="js/jquery-3.3.1.js"></script>
-    <script src="lib/layui/layui.js" charset="utf-8"></script>
-    <script type="text/javascript" src="js/admin.js"></script>
-    <script>
-        $(function() {
-            layui.use('form', function() {
-                var form = layui.form;
-                // layer.msg('玩命加载中', function() {
-                //     //关闭后的操作
-                // });
-                //监听提交
-                form.on('submit(login)', function(data) {
-                    // alert(888)
-                    // layer.msg(JSON.stringify(data.field), function() {
-                    //     location.href = 'index.html'
-                    // });
-                    $.ajax({
-                        type: "post",
-                        url: "#",
-                        data: {
-                            username: $('#username'),
-                            password: $('#password')
-                        },
-                        dataType: "json",
-                        success: function(response) {
-                            if (response.code == '成功码') {
-                                layer.msg('登录成功', function() {
-                                    location.href = 'index.html'
-                                });
-                            }
-                            //登录错误的显示
-                            else {
-                                layer.msg(response.msg);
-                            }
+<script type="text/javascript" src="js/jquery-3.3.1.js"></script>
+<script src="lib/layui/layui.js" charset="utf-8"></script>
+<script>
+    $(function() {
+        layui.use(['form','layer'], function() {
+            var form = layui.form;
+            var layer = layui.layer;
+
+            //监听提交
+            form.on('submit(login)', function() {
+                $.ajax({
+                    type: "POST",
+                    url: "admin/login",
+                    data: {
+                        adminId: $('#adminId').val(),
+                        psw: $('#psw').val()
+                    },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.code == '100') {
+                            layer.msg('登录成功',{time:2000}, function () {
+                                location.href = 'index.html'
+                            });
                         }
-                    });
-                    return false;
+                        //登录错误的显示
+                        else {
+                            layer.msg(response.msg);
+                        }
+                    }
                 });
+                return false;
             });
-        })
-    </script>
+        });
+    })
+</script>
 </body>
 
 </html>

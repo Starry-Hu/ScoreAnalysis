@@ -6,10 +6,7 @@ import com.scoreanalysis.service.PlanService;
 import com.scoreanalysis.util.BaseResponse;
 import com.scoreanalysis.util.ExcelImportUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -21,11 +18,12 @@ import org.springframework.web.multipart.MultipartFile;
  */
 
 @RestController
-@RequestMapping("/plan")
+@RequestMapping("plan")
 public class PlanController extends BaseController {
     @Autowired
     private PlanService planService;
     private ExcelImportUtil excelImportUtil = new ExcelImportUtil();
+
     /**
     * @Description: 添加教学计划基本信息
     * @Param: [planName, planYear]
@@ -53,9 +51,10 @@ public class PlanController extends BaseController {
     * @return: com.scoreanalysis.util.BaseResponse 
     * @Author: StarryHu
     * @Date: 2019/3/18 
-    */ 
+    */
+    @ResponseBody
     @PostMapping("/uploadAddCourses")
-    public BaseResponse addPlanCourses(@RequestParam(value = "filename") MultipartFile file,String planId) throws Exception{
+    public BaseResponse addPlanCourses(MultipartFile file) throws Exception{
         // 获取文件名称
         String fileName = file.getOriginalFilename();
         // 检查格式是否正确
@@ -66,10 +65,30 @@ public class PlanController extends BaseController {
         // 判断excel文件类型
         boolean isExcel2003 = excelImportUtil.isExcel2003(fileName);
 
-
+        String planId = "123";
         // 对planCourse关系表进行处理
         planService.batchUpload(fileName, file, isExcel2003,planId);
         // 教学计划对应课程关系导入成功
         return ajaxSucc(null,ResultEnum.PLAN_ADD_SUCCESS);
+    }
+
+    
+    /** 
+    * @Description: 删除教学计划和教学计划课程对应关系
+    * @Param: [planId] 
+    * @return: com.scoreanalysis.util.BaseResponse 
+    * @Author: StarryHu
+    * @Date: 2019/3/19 
+    */
+    @GetMapping("/deleteRelated")
+    public BaseResponse deletePlanRelated(String planId) throws Exception{
+        // 信息填写不完全
+        if (planId == null || planId.trim().equals("")){
+            return ajaxFail(ResultEnum.PLAN_INFO_NOT_FULL);
+        }
+
+        planService.deletePlanRelated(planId);
+
+        return ajaxSucc(null,ResultEnum.PLAN_DELETE_SUCCESS);
     }
 }

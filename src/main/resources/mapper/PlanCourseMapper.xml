@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.scoreanalysis.mapper.PlanCourseMapper">
+<mapper namespace="com.scoreanalysis.dao.PlanCourseMapper">
   <resultMap id="BaseResultMap" type="com.scoreanalysis.bean.PlanCourse">
     <id column="pcid" jdbcType="VARCHAR" property="pcid" />
     <result column="plan_id" jdbcType="VARCHAR" property="planId" />

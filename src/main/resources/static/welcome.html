@@ -18,7 +18,7 @@
             background-image: url('images/homePage.jpg');
             background-position: top;
         }
-        
+
         #title {
             width: 350px;
             text-align: center;
@@ -36,7 +36,7 @@
             color: #fff;
             letter-spacing: 3px;
         }
-        
+
         #upload {
             padding-top: 500px;
             text-align: center;
@@ -45,61 +45,67 @@
 </head>
 
 <body class="layui-layout-body" layadmin-themealias="default">
-    <div id="main" class="layui-layout">
-        <div id="title">
-            <h2>WELCOME!</h2>
-        </div>
+<div id="main" class="layui-layout">
+    <div id="title">
+        <h2>WELCOME!</h2>
+    </div>
 
-        <div id="upload" class="layui-container">
-            <div class="layui-row">
-                <div class="layui-col-md6">
-                    <button type="button" class="layui-btn" id="test1"><i class="layui-icon"></i>上传教学计划文件</button>
-                    <input class="layui-upload-file" type="file" accept="undefined" name="file">
-                </div>
-                <div class="layui-col-md6">
-                    <button type="button" class="layui-btn" id="test2"><i class="layui-icon"></i>上传学生成绩文件</button>
-                    <input class="layui-upload-file" type="file" accept="undefined" name="file">
-                </div>
+    <div id="upload" class="layui-container">
+        <div class="layui-row">
+            <div class="layui-col-md6">
+                <button type="button" class="layui-btn" id="test1"><i class="layui-icon"></i>上传教学计划文件</button>
+                <input class="layui-upload-file" type="file" accept="excel" name="file">
+            </div>
+            <div class="layui-col-md6">
+                <button type="button" class="layui-btn" id="test2"><i class="layui-icon"></i>上传学生成绩文件</button>
+                <input class="layui-upload-file" type="file" accept="undefined" name="file2">
             </div>
         </div>
     </div>
+</div>
 
 
-    <script type="text/javascript" src="js/jquery-3.3.1.js"></script>
-    <script src="lib/layui/layui.js" charset="utf-8"></script>
-    <script>
-        layui.use('upload', function() {
-            var upload = layui.upload;
+<script type="text/javascript" src="js/jquery-3.3.1.js"></script>
+<script src="lib/layui/layui.js" charset="utf-8"></script>
+<script>
+    layui.use('upload', function() {
+        var upload = layui.upload;
 
-            //上传教学计划文件
-            var upload1 = upload.render({
-                elem: '#test1' //绑定元素
-                    ,
-                url: '/upload/' //上传接口
-                    ,
-                done: function(res) {
-                    //上传完毕回调
-                },
-                error: function() {
-                    //请求异常回调
-                }
-            });
-
-            //上传学生成绩文件
-            var upload2 = upload.render({
-                elem: '#test2' //绑定元素
-                    ,
-                url: '/upload/' //上传接口
-                    ,
-                done: function(res) {
-                    //上传完毕回调
-                },
-                error: function() {
-                    //请求异常回调
-                }
-            });
+        //上传教学计划文件
+        var upload1 = upload.render({
+            elem: '#test1' //绑定元素
+            ,
+            url: "plan/uploadAddCourses" //上传接口
+            ,
+            accept: 'file' //普通文件
+            ,
+            exts: 'xls|xlsx' //允许上传的文件后缀
+            ,
+            done: function(response) {
+                alert(response.msg);
+                //上传完毕回调
+            },
+            error: function(response) {
+                alert(response.msg)
+                //请求异常回调
+            }
         });
-    </script>
+
+        //上传学生成绩文件
+        var upload2 = upload.render({
+            elem: '#test2' //绑定元素
+            ,
+            url: '/upload/' //上传接口
+            ,
+            done: function(res) {
+                //上传完毕回调
+            },
+            error: function() {
+                //请求异常回调
+            }
+        });
+    });
+</script>
 </body>
 
 </html>
