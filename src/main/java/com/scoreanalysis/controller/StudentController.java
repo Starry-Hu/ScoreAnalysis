@@ -5,10 +5,7 @@ import com.scoreanalysis.service.StudentService;
 import com.scoreanalysis.util.BaseResponse;
 import com.scoreanalysis.util.ExcelImportUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -46,10 +43,24 @@ public class StudentController extends BaseController {
         boolean isExcel2003 = excelImportUtil.isExcel2003(fileName);
 
         // 导入学生班级专业信息
-        studentService.batchUpload(fileName, file, isExcel2003);
+        studentService.batchUpload(file);
 
         // 学生班级专业 信息导入成功
-        return ajaxSucc(null, ResultEnum.STUDENT_ADD_SUCCESS);
+        return ajaxSucc(null, ResultEnum.STUDENT_DATA_ADD_SUCC);
     }
 
+    /** 
+    * @Description: 删除全部学生信息的相关内容（删除学生表、班级表和专业表）
+    * @Param: [] 
+    * @return: com.scoreanalysis.util.BaseResponse 
+    * @Author: StarryHu
+    * @Date: 2019/3/22 
+    */ 
+    @GetMapping("/deleteRelated")
+    public BaseResponse deleteStusRelated() throws Exception{
+        // 删除全部学生相关信息
+        studentService.deleteAllStusRelated();
+
+        return ajaxSucc(null,ResultEnum.STUDENT_DATA_DELETE_SUCC);
+    }
 }

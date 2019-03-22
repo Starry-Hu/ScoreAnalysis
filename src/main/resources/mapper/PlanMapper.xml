@@ -4,7 +4,6 @@
   <resultMap id="BaseResultMap" type="com.scoreanalysis.bean.Plan">
     <id column="plan_id" jdbcType="VARCHAR" property="planId" />
     <result column="plan_name" jdbcType="VARCHAR" property="planName" />
-    <result column="plan_year" jdbcType="VARCHAR" property="planYear" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -65,7 +64,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    plan_id, plan_name, plan_year
+    plan_id, plan_name
   </sql>
   <select id="selectByExample" parameterType="com.scoreanalysis.bean.PlanExample" resultMap="BaseResultMap">
     select
@@ -99,10 +98,8 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.scoreanalysis.bean.Plan">
-    insert into plan (plan_id, plan_name, plan_year
-      )
-    values (#{planId,jdbcType=VARCHAR}, #{planName,jdbcType=VARCHAR}, #{planYear,jdbcType=VARCHAR}
-      )
+    insert into plan (plan_id, plan_name)
+    values (#{planId,jdbcType=VARCHAR}, #{planName,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.scoreanalysis.bean.Plan">
     insert into plan
@@ -113,9 +110,6 @@
       <if test="planName != null">
         plan_name,
       </if>
-      <if test="planYear != null">
-        plan_year,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="planId != null">
@@ -123,9 +117,6 @@
       </if>
       <if test="planName != null">
         #{planName,jdbcType=VARCHAR},
-      </if>
-      <if test="planYear != null">
-        #{planYear,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -144,9 +135,6 @@
       <if test="record.planName != null">
         plan_name = #{record.planName,jdbcType=VARCHAR},
       </if>
-      <if test="record.planYear != null">
-        plan_year = #{record.planYear,jdbcType=VARCHAR},
-      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -155,8 +143,7 @@
   <update id="updateByExample" parameterType="map">
     update plan
     set plan_id = #{record.planId,jdbcType=VARCHAR},
-      plan_name = #{record.planName,jdbcType=VARCHAR},
-      plan_year = #{record.planYear,jdbcType=VARCHAR}
+      plan_name = #{record.planName,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -167,16 +154,12 @@
       <if test="planName != null">
         plan_name = #{planName,jdbcType=VARCHAR},
       </if>
-      <if test="planYear != null">
-        plan_year = #{planYear,jdbcType=VARCHAR},
-      </if>
     </set>
     where plan_id = #{planId,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.scoreanalysis.bean.Plan">
     update plan
-    set plan_name = #{planName,jdbcType=VARCHAR},
-      plan_year = #{planYear,jdbcType=VARCHAR}
+    set plan_name = #{planName,jdbcType=VARCHAR}
     where plan_id = #{planId,jdbcType=VARCHAR}
   </update>
 </mapper>

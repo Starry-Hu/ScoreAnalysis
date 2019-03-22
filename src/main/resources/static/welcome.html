@@ -53,11 +53,14 @@
     <div id="upload" class="layui-container">
         <div class="layui-row">
             <div class="layui-col-md6">
-                <button type="button" class="layui-btn" id="test1"><i class="layui-icon"></i>上传教学计划文件</button>
-                <input class="layui-upload-file" type="file" accept="excel" name="file">
+                <button type="button" class="layui-btn layui-btn-danger" id="deletePlanInfo">删除现存全部教学计划相关<br>（包括对应课程）
+                </button>
+                <button type="button" class="layui-btn layui-btn-danger" id="deleteStudentInfo">删除现存全部学生相关信息<br>（包括班级专业成绩）
+                </button>
             </div>
             <div class="layui-col-md6">
-                <button type="button" class="layui-btn" id="test2"><i class="layui-icon"></i>上传学生成绩文件</button>
+                <button type="button" class="layui-btn" id="uploadPlan"><i class="layui-icon"></i>上传教学计划文件</button>
+                <button type="button" class="layui-btn" id="uploadStudent"><i class="layui-icon"></i>上传学生成绩文件</button>
                 <input class="layui-upload-file" type="file" accept="undefined" name="file2">
             </div>
         </div>
@@ -68,48 +71,62 @@
 <script type="text/javascript" src="js/jquery-3.3.1.js"></script>
 <script src="lib/layui/layui.js" charset="utf-8"></script>
 <script>
-    layui.use('upload', function() {
+    layui.use('upload', function () {
         var upload = layui.upload;
 
-        //上传教学计划文件
-        var upload1 = upload.render({
-            elem: '#test1' //绑定元素
+        $('#uploadPlan').click(function(){
+            layer.open({
+                type: 2,
+                content: ['addPlan.html', 'no'],
+                area: ['500px', '300px']
+            });
+        })
+
+
+        //上传学生成绩文件
+        var uploadStudent = upload.render({
+            elem: '#uploadStudent' //绑定元素
             ,
-            url: "plan/uploadAddCourses" //上传接口
+            url: 'student/uploadStudentInfo' //上传接口 不需要项目名
             ,
             accept: 'file' //普通文件
             ,
             exts: 'xls|xlsx' //允许上传的文件后缀
             ,
-            done: function(response) {
-                alert(response.msg);
+            done: function (response) {
+                layer.msg(response.msg);
                 //上传完毕回调
             },
-            error: function(response) {
-                alert(response.msg)
+            error: function (response) {
+                layer.msg(response.msg);
                 //请求异常回调
             }
         });
 
-        //上传学生成绩文件
-        var upload2 = upload.render({
-            elem: '#test2' //绑定元素
-            ,
-            url: 'student/uploadStudentInfo' //上传接口
-            ,
-            accept: 'file' //普通文件
-            ,
-            exts: 'xls|xlsx' //允许上传的文件后缀
-            ,
-            done: function(response) {
-                alert(response.msg);
-                //上传完毕回调
-            },
-            error: function(response) {
-                alert(response.msg)
-                //请求异常回调
-            }
-        });
+        $('#deletePlanInfo').click(function () {
+            $.ajax({
+                type: "get",
+                url: "/ScoreAnalysis/plan/deleteAllRelated", // 需要带上项目名
+                data: {
+                    "planId": "123",
+                },
+                dataType: "json",
+                success: function (response) {
+                    layer.msg(response.msg);
+                }
+            });
+        })
+
+        $('#deleteStudentInfo').click(function () {
+            $.ajax({
+                type: "get",
+                url: "/ScoreAnalysis/student/deleteRelated", // 需要带上项目名
+                dataType: "json",
+                success: function (response) {
+                    layer.msg(response.msg);
+                }
+            });
+        })
     });
 </script>
 </body>

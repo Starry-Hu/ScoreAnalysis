@@ -7,12 +7,42 @@ package com.scoreanalysis.enums;
  * @Date 2018/11/4 18:32
  */
 public enum ExceptionEnum {
+    // 上传文件相关
+    UPLOAD_FORM_ERROR(101,"上传文件格式不正确"),
+    UPLOAD_EMPTY(102,"文件为空"),
+
     // 管理员相关
-    ADMIN_NO_EXSIT(122,"管理员不存在"),
+    ADMIN_NO_EXIST(122,"管理员不存在"),
     ADMIN_ADD_FAIL(123,"管理员添加失败"),
     ADMIN_DELETE_FAIL(124,"管理员删除失败"),
     ADMIN_UPDATE_FAIL(125,"管理员更新失败"),
     ADMIN_SEARCH_FAIL(126,"管理员查找失败"),
+
+    // 教学计划相关
+    PLAN_EXIST(221,"教学计划已存在"),
+    PLAN_NO_EXIST(222,"教学计划不存在"),
+    PLAN_ADD_FAIL(223,"教学计划添加失败"),
+    PLAN_DELETE_FAIL(224,"教学计划删除失败"),
+    PLAN_UPDATE_FAIL(225,"教学计划更新失败"),
+    PLAN_SEARCH_FAIL(226,"教学计划查找失败"),
+
+    PLAN_DATA_DELETE_SUCC(227,"教学计划相关数据删除成功！"),
+    PLAN_DATA_DELETE_FAIL(228,"教学计划相关数据删除失败！"),
+    PLAN_DATA_EMPTY(229,"教学计划相关数据为空！"),
+
+    // 学生相关
+    STUDENT_EXIST(101,"学生已经存在"),
+    STUDENT__NO_EXIST(102,"学生不存在"),
+    STUDENT_ADD_FAIL(223,"学生添加失败"),
+    STUDENT_DELETE_FAIL(224,"学生删除失败"),
+    STUDENT_UPDATE_FAIL(225,"学生更新失败"),
+    STUDENT_SEARCH_FAIL(226,"学生查找失败"),
+
+    STUDENT_DATA_DELETE_SUCC(227,"学生相关数据删除成功！"),
+    STUDENT_DATA_DELETE_FAIL(228,"学生相关数据删除失败！"),
+    STUDENT_DATA_EMPTY(229,"学生相关数据为空！"),
+
+
 
     // 课程相关
     COURSE_EXIST(221,"课程已存在"),
@@ -30,14 +60,6 @@ public enum ExceptionEnum {
     MAJOR_UPDATE_FAIL(225,"专业更新失败"),
     MAJOR_SEARCH_FAIL(226,"专业查找失败"),
 
-    // 教学计划相关
-    PLAN_EXIST(221,"教学计划已存在"),
-    PLAN_NO_EXIST(222,"教学计划不存在"),
-    PLAN_ADD_FAIL(223,"教学计划添加失败"),
-    PLAN_DELETE_FAIL(224,"教学计划删除失败"),
-    PLAN_UPDATE_FAIL(225,"教学计划更新失败"),
-    PLAN_SEARCH_FAIL(226,"教学计划查找失败"),
-
     // 教学计划与课程关系相关
     PLAN_COURSE_EXIST(221,"已存在"),
     PLAN_COURSE_NO_EXIST(222,"教学计划不存在"),
@@ -46,13 +68,7 @@ public enum ExceptionEnum {
     PLAN_COURSE_UPDATE_FAIL(225,"教学计划更新失败"),
     PLAN_COURSE_SEARCH_FAIL(226,"教学计划查找失败"),
 
-    // 学生相关
-    STUDENT_EXIST(101,"学生已经存在"),
-    STUDENT_NO_EXIST(102,"学生不存在"),
-    STUDENT_ADD_FAIL(223,"学生添加失败"),
-    STUDENT_DELETE_FAIL(224,"学生删除失败"),
-    STUDENT_UPDATE_FAIL(225,"学生更新失败"),
-    STUDENT_SEARCH_FAIL(226,"学生查找失败"),
+
 
     // 班级相关
     CLASS_EXIST(101,"班级已经存在"),
@@ -70,9 +86,6 @@ public enum ExceptionEnum {
     STU_COURSE_UPDATE_FAIL(225,"学生课程信息更新失败"),
     STU_COURSE_SEARCH_FAIL(226,"学生课程信息查找失败"),
 
-    // 上传文件相关
-    UPLOAD_FORM_ERROR(101,"上传文件格式不正确"),
-    UPLOAD_IN_ERROR(102,"导入失败(第\"+(r+1)+\"行,用户名请设为文本格式)")
 
     ;
 

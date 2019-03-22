@@ -304,63 +304,63 @@ public class CourseExample {
             return (Criteria) this;
         }
 
-        public Criteria andIsAcquiredIsNull() {
-            addCriterion("is_acquired is null");
+        public Criteria andKcsxIsNull() {
+            addCriterion("kcsx is null");
             return (Criteria) this;
         }
 
-        public Criteria andIsAcquiredIsNotNull() {
-            addCriterion("is_acquired is not null");
+        public Criteria andKcsxIsNotNull() {
+            addCriterion("kcsx is not null");
             return (Criteria) this;
         }
 
-        public Criteria andIsAcquiredEqualTo(Integer value) {
-            addCriterion("is_acquired =", value, "isAcquired");
+        public Criteria andKcsxEqualTo(Integer value) {
+            addCriterion("kcsx =", value, "kcsx");
             return (Criteria) this;
         }
 
-        public Criteria andIsAcquiredNotEqualTo(Integer value) {
-            addCriterion("is_acquired <>", value, "isAcquired");
+        public Criteria andKcsxNotEqualTo(Integer value) {
+            addCriterion("kcsx <>", value, "kcsx");
             return (Criteria) this;
         }
 
-        public Criteria andIsAcquiredGreaterThan(Integer value) {
-            addCriterion("is_acquired >", value, "isAcquired");
+        public Criteria andKcsxGreaterThan(Integer value) {
+            addCriterion("kcsx >", value, "kcsx");
             return (Criteria) this;
         }
 
-        public Criteria andIsAcquiredGreaterThanOrEqualTo(Integer value) {
-            addCriterion("is_acquired >=", value, "isAcquired");
+        public Criteria andKcsxGreaterThanOrEqualTo(Integer value) {
+            addCriterion("kcsx >=", value, "kcsx");
             return (Criteria) this;
         }
 
-        public Criteria andIsAcquiredLessThan(Integer value) {
-            addCriterion("is_acquired <", value, "isAcquired");
+        public Criteria andKcsxLessThan(Integer value) {
+            addCriterion("kcsx <", value, "kcsx");
             return (Criteria) this;
         }
 
-        public Criteria andIsAcquiredLessThanOrEqualTo(Integer value) {
-            addCriterion("is_acquired <=", value, "isAcquired");
+        public Criteria andKcsxLessThanOrEqualTo(Integer value) {
+            addCriterion("kcsx <=", value, "kcsx");
             return (Criteria) this;
         }
 
-        public Criteria andIsAcquiredIn(List<Integer> values) {
-            addCriterion("is_acquired in", values, "isAcquired");
+        public Criteria andKcsxIn(List<Integer> values) {
+            addCriterion("kcsx in", values, "kcsx");
             return (Criteria) this;
         }
 
-        public Criteria andIsAcquiredNotIn(List<Integer> values) {
-            addCriterion("is_acquired not in", values, "isAcquired");
+        public Criteria andKcsxNotIn(List<Integer> values) {
+            addCriterion("kcsx not in", values, "kcsx");
             return (Criteria) this;
         }
 
-        public Criteria andIsAcquiredBetween(Integer value1, Integer value2) {
-            addCriterion("is_acquired between", value1, value2, "isAcquired");
+        public Criteria andKcsxBetween(Integer value1, Integer value2) {
+            addCriterion("kcsx between", value1, value2, "kcsx");
             return (Criteria) this;
         }
 
-        public Criteria andIsAcquiredNotBetween(Integer value1, Integer value2) {
-            addCriterion("is_acquired not between", value1, value2, "isAcquired");
+        public Criteria andKcsxNotBetween(Integer value1, Integer value2) {
+            addCriterion("kcsx not between", value1, value2, "kcsx");
             return (Criteria) this;
         }
     }

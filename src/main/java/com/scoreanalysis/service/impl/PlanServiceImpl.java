@@ -1,9 +1,6 @@
 package com.scoreanalysis.service.impl;
 
-import com.scoreanalysis.bean.Course;
-import com.scoreanalysis.bean.Plan;
-import com.scoreanalysis.bean.PlanCourse;
-import com.scoreanalysis.bean.PlanCourseExample;
+import com.scoreanalysis.bean.*;
 import com.scoreanalysis.dao.CourseMapper;
 import com.scoreanalysis.dao.PlanCourseMapper;
 import com.scoreanalysis.dao.PlanMapper;
@@ -38,24 +35,22 @@ public class PlanServiceImpl implements PlanService {
     private PlanCourseMapper planCourseMapper;
 
     /**
-     * @Description: 添加教学计划
+     * @Description: 添加教学计划基本信息
      * @Param: [planId, planName, planYear]
      * @return: int
      * @Author: StarryHu
      * @Date: 2019/3/5
      */
-    public Plan addPlan(String planName, String planYear) throws Exception {
+    public String addPlanInfo(String planName) throws Exception {
         Plan plan = new Plan();
         plan.setPlanId(IDGenerator.generator());
         plan.setPlanName(planName);
-        plan.setPlanYear(planYear);
 
         try {
             int n = planMapper.insertSelective(plan);
             if (n > 0) {
-                return plan;
+                return plan.getPlanId();
             }
-
             throw new SAException(ExceptionEnum.PLAN_ADD_FAIL);
 
         } catch (Exception e) {
@@ -63,71 +58,25 @@ public class PlanServiceImpl implements PlanService {
         }
     }
 
-    ;
-
-    /**
-     * @Description: 删除教学计划
-     * @Param: [planId]
-     * @return: int
-     * @Author: StarryHu
-     * @Date: 2019/3/5
-     */
-    public int deletePlan(String planId) throws Exception {
-        try {
-            int n = planMapper.deleteByPrimaryKey(planId);
-            if (n > 0) {
-                return n;
-            }
-            throw new SAException(ExceptionEnum.PLAN_DELETE_FAIL);
-        } catch (Exception e) {
-            throw e;
-        }
-    }
-
-    /**
-     * @Description: 更新教学计划
-     * @Param: [planId, planName, planYear]
-     * @return: int
-     * @Author: StarryHu
-     * @Date: 2019/3/5
-     */
-    public int updatePlan(String planId, String planName, String planYear) throws Exception {
-        Plan plan = new Plan();
-        plan.setPlanId(planId);
-        plan.setPlanName(planName);
-        plan.setPlanYear(planYear);
-
-        try {
-            int n = planMapper.updateByPrimaryKeySelective(plan);
-            if (n > 0) {
-                return n;
-            }
-            throw new SAException(ExceptionEnum.PLAN_UPDATE_FAIL);
-        } catch (Exception e) {
-            throw e;
-        }
-    }
-
-
+    /** 
+    * @Description: 上传教学计划文件，将数据导入plan表和plan_course表
+    * @Param: [file, planId] 
+    * @return: void 
+    * @Author: StarryHu
+    * @Date: 2019/3/22 
+    */ 
     @Transactional(readOnly = false, rollbackFor = Exception.class)
     @Override
-    public boolean batchUpload(String fileName, MultipartFile file, boolean isExcel2003, String planId) throws Exception {
-        boolean notNull = false;
+    public void batchUpload(MultipartFile file, String planId) throws Exception {
         List<Course> courseList = new ArrayList<>();
 
         InputStream is = file.getInputStream();
         // 使用spring自带的兼容2003/2007
         Workbook wb = WorkbookFactory.create(is);
-//        Workbook wb = null;
-//        if (isExcel2003) {
-//            wb = new HSSFWorkbook(is);
-//        } else {
-//            wb = new XSSFWorkbook(is);
-//        }
 
         Sheet sheet = wb.getSheetAt(0);
-        if (sheet != null) {
-            notNull = true;
+        if (sheet == null) {
+            throw new SAException(ExceptionEnum.UPLOAD_EMPTY);
         }
 
         Course course;
@@ -148,30 +97,32 @@ public class PlanServiceImpl implements PlanService {
                 throw new Exception("导入失败(第" + (r + 1) + "行,课程号未填写)");
             }
 
-            if (row.getCell(1).getCellType() != 1) {
-                throw new Exception("导入失败(第" + (r + 1) + "行,课程号请设为文本格式)");
-            }
             String cname = row.getCell(1).getStringCellValue();
-
             if (cname == null || cname.isEmpty()) {
                 throw new Exception("导入失败(第" + (r + 1) + "行,课程名未填写)");
             }
 
+            row.getCell(2).setCellType(Cell.CELL_TYPE_NUMERIC);
             double credit = row.getCell(2).getNumericCellValue();
             if (credit == 0) {
                 throw new Exception("导入失败(第" + (r + 1) + "行,请正确填写学分)");
             }
 
-            String isAcquired = row.getCell(3).getStringCellValue();
-            if (isAcquired == null || isAcquired.isEmpty()) {
-                throw new Exception("导入失败(第" + (r + 1) + "行,是否必修未填写)");
+            String kcsx = row.getCell(3).getStringCellValue();
+            if (kcsx == null || kcsx.isEmpty()) {
+                throw new Exception("导入失败(第" + (r + 1) + "行,课程属性未填写)");
             }
             // 是必修
-            if (isAcquired.equals("必修")) {
-                course.setIsAcquired(1);
+            if (kcsx.equals("必修")) {
+                course.setKcsx(0);
+            } else if (kcsx.equals("限选")) {
+                course.setKcsx(1);
+            } else if (kcsx.equals("公选")) {
+                course.setKcsx(2);
             } else {
-                course.setIsAcquired(0);
+                throw new Exception("导入失败(第" + (r + 1) + "行,课程属性填写不正确)");
             }
+
             //完整的循环一次 就组成了一个对象
             course.setCid(cid);
             course.setCname(cname);
@@ -205,24 +156,25 @@ public class PlanServiceImpl implements PlanService {
                 // 课程不存在时,课程和关系都添加
                 courseMapper.insert(courseRecord);
                 planCourseMapper.insert(planCourse);
-//                System.out.println(" 插入 " + courseRecord);
             } else if (testList.size() == 0) {
-                // 课程存在-更新；关系不存在-添加
-                courseMapper.updateByPrimaryKeySelective(courseRecord);
+                // 课程存在-若对比发现不同则更新，否则不管；关系不存在-添加
+                if (!testCourse.equals(courseRecord)) {
+                    courseMapper.updateByPrimaryKeySelective(courseRecord);
+                }
                 planCourseMapper.insert(planCourse);
-//                System.out.println(" 更新 " + courseRecord);
             } else {
-                // 都存在时，只需要更新原课程信息即可。关系对象是不变的（存在）
-                courseMapper.updateByPrimaryKeySelective(courseRecord);
+                // 都存在时，只需要对比发现是否需要更新原课程信息即可。
+                // 关系对象是不变的（存在）
+                if (!testCourse.equals(courseRecord)) {
+                    courseMapper.updateByPrimaryKeySelective(courseRecord);
+                }
             }
         }
-
-        return notNull;
     }
 
     /**
-     * @Description: 根据教学计划删除所有相关信息(plan ， planCourse)
-     * @Param: [planId, cid]
+     * @Description: 根据教学计划id删除所有相关信息(plan ， planCourse)
+     * @Param: [planId]
      * @return: int
      * @Author: StarryHu
      * @Date: 2019/3/10
@@ -233,13 +185,54 @@ public class PlanServiceImpl implements PlanService {
         criteria.andPlanIdEqualTo(planId);
 
         try {
+            Plan testPlan = planMapper.selectByPrimaryKey(planId);
+            List<PlanCourse> planCourseList = planCourseMapper.selectByExample(example);
+            if (testPlan == null || planCourseList.size() == 0) {
+                throw new SAException(ExceptionEnum.PLAN_DATA_EMPTY);
+            }
+
             // 删除教学计划课程关系  和   教学计划
             int n1 = planCourseMapper.deleteByExample(example);
             int n2 = planMapper.deleteByPrimaryKey(planId);
             if (n1 > 0 && n2 > 0) {
                 return n1 + n2;
             }
-            throw new SAException(ExceptionEnum.PLAN_COURSE_DELETE_FAIL);
+            throw new SAException(ExceptionEnum.PLAN_DATA_DELETE_FAIL);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    /** 
+    * @Description: 删除全部教学计划相关
+    * @Param: [] 
+    * @return: int 
+    * @Author: StarryHu
+    * @Date: 2019/3/22 
+    */ 
+    public int deleteAllPlansRelated() throws Exception {
+        // 查出全部的教学计划-课程关系
+        PlanCourseExample planCourseExample = new PlanCourseExample();
+        planCourseExample.createCriteria().andPcidIsNotNull();
+
+        // 查出全部的教学计划
+        PlanExample planExample = new PlanExample();
+        planExample.createCriteria().andPlanIdIsNotNull();
+
+        try {
+            List<Plan> planList = planMapper.selectByExample(planExample);
+            List<PlanCourse> planCourseList = planCourseMapper.selectByExample(planCourseExample);
+
+            if (planList.size() == 0 && planCourseList.size() == 0) {
+                throw new SAException(ExceptionEnum.PLAN_DATA_EMPTY);
+            }
+            int n1 = planMapper.deleteByExample(planExample);
+            int n2 = planCourseMapper.deleteByExample(planCourseExample);
+
+            if (n1 > 0 && n2 > 0) {
+                return n1 + n2;
+            }
+            throw new SAException(ExceptionEnum.PLAN_DATA_DELETE_FAIL);
         } catch (Exception e) {
             throw e;
         }

@@ -5,8 +5,6 @@ public class Plan {
 
     private String planName;
 
-    private String planYear;
-
     public String getPlanId() {
         return planId;
     }
@@ -21,13 +19,5 @@ public class Plan {
 
     public void setPlanName(String planName) {
         this.planName = planName;
-    }
-
-    public String getPlanYear() {
-        return planYear;
-    }
-
-    public void setPlanYear(String planYear) {
-        this.planYear = planYear;
     }
 }

@@ -111,7 +111,7 @@ public class AdminServiceImpl implements AdminService {
             Admin admin = adminMapper.selectByPrimaryKey(id);
             // 管理员不存在
             if (admin == null) {
-                throw new SAException(ExceptionEnum.ADMIN_NO_EXSIT);
+                throw new SAException(ExceptionEnum.ADMIN_NO_EXIST);
             }
             return admin;
         } catch (Exception e) {
@@ -133,12 +133,12 @@ public class AdminServiceImpl implements AdminService {
             List<Admin> datas = adminMapper.selectByExample(adminExample);
             // 查出来整个数据是空的  管理员不存在
             if (datas.isEmpty()) {
-                throw new SAException(ExceptionEnum.ADMIN_NO_EXSIT);
+                throw new SAException(ExceptionEnum.ADMIN_NO_EXIST);
             }
             // 若不空 则取第一条判断
             Admin admin = datas.get(0);
             if (admin == null || admin.getIsdel() == 1) {
-                throw new SAException(ExceptionEnum.ADMIN_NO_EXSIT);
+                throw new SAException(ExceptionEnum.ADMIN_NO_EXIST);
             }
             return admin;
         } catch (Exception e) {

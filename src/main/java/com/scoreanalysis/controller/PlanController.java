@@ -1,6 +1,5 @@
 package com.scoreanalysis.controller;
 
-import com.scoreanalysis.bean.Plan;
 import com.scoreanalysis.enums.ResultEnum;
 import com.scoreanalysis.service.PlanService;
 import com.scoreanalysis.util.BaseResponse;
@@ -25,70 +24,86 @@ public class PlanController extends BaseController {
     private ExcelImportUtil excelImportUtil = new ExcelImportUtil();
 
     /**
-    * @Description: 添加教学计划基本信息
-    * @Param: [planName, planYear]
-    * @return: com.scoreanalysis.util.BaseResponse
-    * @Author: StarryHu
-    * @Date: 2019/3/18
-    */
+     * @Description: 添加教学计划基本信息
+     * @Param: [planName, planYear]
+     * @return: com.scoreanalysis.util.BaseResponse
+     * @Author: StarryHu
+     * @Date: 2019/3/18
+     */
     @PostMapping("/addBasic")
-    public BaseResponse addPlan(String planName,String planYear) throws Exception{
+    public BaseResponse addPlan(String planName) throws Exception {
         // 信息填写不完全
-        if (planName == null || planYear == null ||
-                planName.trim().equals("") || planYear.trim().equals("")){
+        if (planName == null || planName.trim().equals("")) {
             return ajaxFail(ResultEnum.PLAN_INFO_NOT_FULL);
         }
 
         // 添加教学计划
-        Plan plan = planService.addPlan(planName,planYear);
+//        Plan plan = planService.addPlanInfo(planName);
 
-        return ajaxSucc(plan,ResultEnum.PLAN_ADD_SUCCESS);
+        return ajaxSucc(12, ResultEnum.PLAN_ADD_SUCCESS);
     }
 
-    /** 
-    * @Description: 添加教学计划——课程关系信息(上传文件)
-    * @Param: [file, planId] 
-    * @return: com.scoreanalysis.util.BaseResponse 
-    * @Author: StarryHu
-    * @Date: 2019/3/18 
-    */
+    /**
+     * @Description: 添加教学计划——课程关系信息(上传文件)
+     * @Param: [file, planId]
+     * @return: com.scoreanalysis.util.BaseResponse
+     * @Author: StarryHu
+     * @Date: 2019/3/18
+     */
     @ResponseBody
     @PostMapping("/uploadAddCourses")
-    public BaseResponse addPlanCourses(MultipartFile file) throws Exception{
+    public BaseResponse addPlanCourses(MultipartFile file, String planName) throws Exception {
+        // 信息填写不完全
+        if (file == null || planName == null || planName.trim().equals("")) {
+            return ajaxFail(ResultEnum.PLAN_INFO_NOT_FULL);
+        }
         // 获取文件名称
         String fileName = file.getOriginalFilename();
         // 检查格式是否正确
         boolean isValidate = excelImportUtil.validateExcel(fileName);
-        if (!isValidate){
+        if (!isValidate) {
             return ajaxFail(ResultEnum.EXCEL_FORM_ERROR);
         }
-        // 判断excel文件类型
-        boolean isExcel2003 = excelImportUtil.isExcel2003(fileName);
 
-        String planId = "123";
+        // 添加教学计划，并获取对应关系的planId值
+        String planId = planService.addPlanInfo(planName);
         // 对planCourse关系表进行处理
-        planService.batchUpload(fileName, file, isExcel2003,planId);
+        planService.batchUpload(file, planId);
         // 教学计划对应课程关系导入成功
-        return ajaxSucc(null,ResultEnum.PLAN_ADD_SUCCESS);
+        return ajaxSucc(null, ResultEnum.PLAN_ADD_SUCCESS);
     }
 
-    
-    /** 
-    * @Description: 删除教学计划和教学计划课程对应关系
-    * @Param: [planId] 
-    * @return: com.scoreanalysis.util.BaseResponse 
-    * @Author: StarryHu
-    * @Date: 2019/3/19 
-    */
-    @GetMapping("/deleteRelated")
-    public BaseResponse deletePlanRelated(String planId) throws Exception{
+
+    /**
+     * @Description: 删除教学计划和教学计划课程对应关系
+     * @Param: [planId]
+     * @return: com.scoreanalysis.util.BaseResponse
+     * @Author: StarryHu
+     * @Date: 2019/3/19
+     */
+    @GetMapping("/deleteRelatedByPid")
+    public BaseResponse deletePlanRelated(String planId) throws Exception {
         // 信息填写不完全
-        if (planId == null || planId.trim().equals("")){
+        if (planId == null || planId.trim().equals("")) {
             return ajaxFail(ResultEnum.PLAN_INFO_NOT_FULL);
         }
 
         planService.deletePlanRelated(planId);
 
-        return ajaxSucc(null,ResultEnum.PLAN_DELETE_SUCCESS);
+        return ajaxSucc(null, ResultEnum.PLAN_DELETE_SUCCESS);
+    }
+
+    /**
+     * @Description: 删除全部教学计划和教学计划课程对应关系
+     * @Param: []
+     * @return: com.scoreanalysis.util.BaseResponse
+     * @Author: StarryHu
+     * @Date: 2019/3/22
+     */
+    @GetMapping("/deleteAllRelated")
+    public BaseResponse deleteAllPlansRelated() throws Exception {
+        planService.deleteAllPlansRelated();
+
+        return ajaxSucc(null, ResultEnum.PLAN_DATA_DELETE_SUCC);
     }
 }
