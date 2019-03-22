@@ -48,6 +48,14 @@ public enum  ResultEnum {
     PLAN_SEARCH_SUCCESS(205,"教学计划查找成功"),
     PLAN_INFO_NOT_FULL(211,"信息填写不完全"),
 
+    // 学生信息相关
+    STUDENT_EXIST(201,"学生信息已存在"),
+    STUDENT_ADD_SUCCESS(202,"学生信息添加成功"),
+    STUDENT_DELETE_SUCCESS(203,"学生信息删除成功"),
+    STUDENT_UPDATE_SUCCESS(204,"学生信息更新成功"),
+    STUDENT_SEARCH_SUCCESS(205,"学生信息查找成功"),
+    STUDENT_INFO_NOT_FULL(211,"信息填写不完全"),
+
     // 上传excel表格相关
     EXCEL_FORM_ERROR(401,"上传文件格式不正确"),
     ;

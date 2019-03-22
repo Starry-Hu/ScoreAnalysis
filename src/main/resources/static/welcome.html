@@ -95,12 +95,18 @@
         var upload2 = upload.render({
             elem: '#test2' //绑定元素
             ,
-            url: '/upload/' //上传接口
+            url: 'student/uploadStudentInfo' //上传接口
             ,
-            done: function(res) {
+            accept: 'file' //普通文件
+            ,
+            exts: 'xls|xlsx' //允许上传的文件后缀
+            ,
+            done: function(response) {
+                alert(response.msg);
                 //上传完毕回调
             },
-            error: function() {
+            error: function(response) {
+                alert(response.msg)
                 //请求异常回调
             }
         });

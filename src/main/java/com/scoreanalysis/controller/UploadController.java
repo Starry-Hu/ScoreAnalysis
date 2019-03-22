@@ -65,11 +65,6 @@ public class UploadController extends BaseController {
             isExcel2003 = false;
         }
 
-        // 对专业表的处理
-
-        // 对班级表的处理
-
-        // 对学生表的处理
         studentService.batchUpload(fileName, file, isExcel2003);
 
         return "redirect:index";

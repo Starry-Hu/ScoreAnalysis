@@ -11,12 +11,7 @@ import com.scoreanalysis.enums.ExceptionEnum;
 import com.scoreanalysis.exception.SAException;
 import com.scoreanalysis.service.PlanService;
 import com.scoreanalysis.util.IDGenerator;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,7 +109,6 @@ public class PlanServiceImpl implements PlanService {
     }
 
 
-
     @Transactional(readOnly = false, rollbackFor = Exception.class)
     @Override
     public boolean batchUpload(String fileName, MultipartFile file, boolean isExcel2003, String planId) throws Exception {
@@ -122,12 +116,15 @@ public class PlanServiceImpl implements PlanService {
         List<Course> courseList = new ArrayList<>();
 
         InputStream is = file.getInputStream();
-        Workbook wb = null;
-        if (isExcel2003) {
-            wb = new HSSFWorkbook(is);
-        } else {
-            wb = new XSSFWorkbook(is);
-        }
+        // 使用spring自带的兼容2003/2007
+        Workbook wb = WorkbookFactory.create(is);
+//        Workbook wb = null;
+//        if (isExcel2003) {
+//            wb = new HSSFWorkbook(is);
+//        } else {
+//            wb = new XSSFWorkbook(is);
+//        }
+
         Sheet sheet = wb.getSheetAt(0);
         if (sheet != null) {
             notNull = true;
@@ -161,7 +158,6 @@ public class PlanServiceImpl implements PlanService {
             }
 
             double credit = row.getCell(2).getNumericCellValue();
-//          double credit = Double.parseDouble(creditString);
             if (credit == 0) {
                 throw new Exception("导入失败(第" + (r + 1) + "行,请正确填写学分)");
             }
@@ -171,7 +167,7 @@ public class PlanServiceImpl implements PlanService {
                 throw new Exception("导入失败(第" + (r + 1) + "行,是否必修未填写)");
             }
             // 是必修
-            if (isAcquired.equals("y")) {
+            if (isAcquired.equals("必修")) {
                 course.setIsAcquired(1);
             } else {
                 course.setIsAcquired(0);
@@ -210,14 +206,14 @@ public class PlanServiceImpl implements PlanService {
                 courseMapper.insert(courseRecord);
                 planCourseMapper.insert(planCourse);
 //                System.out.println(" 插入 " + courseRecord);
-            } else if (testList.size() == 0){
+            } else if (testList.size() == 0) {
                 // 课程存在-更新；关系不存在-添加
                 courseMapper.updateByPrimaryKeySelective(courseRecord);
                 planCourseMapper.insert(planCourse);
 //                System.out.println(" 更新 " + courseRecord);
-            }else{
+            } else {
                 // 都存在时，只需要更新原课程信息即可。关系对象是不变的（存在）
-                courseMapper.insert(courseRecord);
+                courseMapper.updateByPrimaryKeySelective(courseRecord);
             }
         }
 
@@ -225,7 +221,7 @@ public class PlanServiceImpl implements PlanService {
     }
 
     /**
-     * @Description: 根据教学计划删除所有相关信息(plan，planCourse)
+     * @Description: 根据教学计划删除所有相关信息(plan ， planCourse)
      * @Param: [planId, cid]
      * @return: int
      * @Author: StarryHu
@@ -241,7 +237,7 @@ public class PlanServiceImpl implements PlanService {
             int n1 = planCourseMapper.deleteByExample(example);
             int n2 = planMapper.deleteByPrimaryKey(planId);
             if (n1 > 0 && n2 > 0) {
-                return n1+n2;
+                return n1 + n2;
             }
             throw new SAException(ExceptionEnum.PLAN_COURSE_DELETE_FAIL);
         } catch (Exception e) {
