@@ -1,12 +1,15 @@
 package com.scoreanalysis.controller;
 
 import com.scoreanalysis.enums.ResultEnum;
+import com.scoreanalysis.pojo.StuCourseExtend;
 import com.scoreanalysis.service.StudentService;
 import com.scoreanalysis.util.BaseResponse;
 import com.scoreanalysis.util.ExcelImportUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * @Project scoreanalysis
@@ -56,11 +59,26 @@ public class StudentController extends BaseController {
     * @Author: StarryHu
     * @Date: 2019/3/22 
     */ 
-    @GetMapping("/deleteRelated")
+    @GetMapping("/deleteAllRelated")
     public BaseResponse deleteStusRelated() throws Exception{
         // 删除全部学生相关信息
         studentService.deleteAllStusRelated();
 
         return ajaxSucc(null,ResultEnum.STUDENT_DATA_DELETE_SUCC);
+    }
+
+    /**
+    * @Description: 根据学号获取该学生的修课情况（返回为修够的课程等）
+    * @Param: [sid]
+    * @return: com.scoreanalysis.util.BaseResponse
+    * @Author: StarryHu
+    * @Date: 2019/3/23
+    */
+    @GetMapping("/getStuInfoBySid")
+    public BaseResponse getStuInfoBySid(String sid) throws Exception{
+        // 根据学号获取该学生的修课情况
+        List<StuCourseExtend> list = studentService.getStuInfoBySid(sid);
+
+        return ajaxSucc(list,ResultEnum.STUDENT_SEARCH_SUCCESS);
     }
 }

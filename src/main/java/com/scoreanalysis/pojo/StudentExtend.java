@@ -6,7 +6,7 @@ import com.scoreanalysis.bean.*;
  * @Project scoreanalysis
  * @ClassName StudentExtend
  * @Author StarryHu
- * @Description 学生扩充版pojo
+ * @Description 学生扩充版pojo(用于excel导入学生信息)
  * @Date 2019/3/5 16:58
  */
 public class StudentExtend {

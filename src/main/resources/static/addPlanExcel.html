@@ -79,7 +79,7 @@
 
         // 提交表单
         $('#submit').click(function () {
-            if ($("#planName").val() == "" || $('input[name=file]').val()) {
+            if ($("#planName").val() == "" || $('input[name=file]').val() == "") {
                 layer.msg("请确保所需信息填写完毕");
                 return;
             }
