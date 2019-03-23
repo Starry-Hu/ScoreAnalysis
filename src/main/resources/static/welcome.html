@@ -77,31 +77,18 @@
         $('#uploadPlan').click(function(){
             layer.open({
                 type: 2,
-                content: ['addPlan.html', 'no'],
+                content: ['addPlanExcel.html', 'no'],
                 area: ['500px', '300px']
             });
         })
 
-
-        //上传学生成绩文件
-        var uploadStudent = upload.render({
-            elem: '#uploadStudent' //绑定元素
-            ,
-            url: 'student/uploadStudentInfo' //上传接口 不需要项目名
-            ,
-            accept: 'file' //普通文件
-            ,
-            exts: 'xls|xlsx' //允许上传的文件后缀
-            ,
-            done: function (response) {
-                layer.msg(response.msg);
-                //上传完毕回调
-            },
-            error: function (response) {
-                layer.msg(response.msg);
-                //请求异常回调
-            }
-        });
+        $('#uploadStudent').click(function () {
+            layer.open({
+                type: 2,
+                content: ['addStusExcel.html', 'no'],
+                area: ['500px', '300px']
+            });
+        })
 
         $('#deletePlanInfo').click(function () {
             $.ajax({

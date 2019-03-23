@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>添加教学计划Excel</title>
+    <link href="lib/layui/css/layui.css" rel="stylesheet" type="text/css"/>
+    <script src="js/jquery-3.3.1.js"></script>
+    <script src="lib/layui/layui.js"></script>
+
+    <style>
+        .layui-form-label {
+            width: 100px;
+        }
+
+        form {
+            width: 400px;
+            margin: 30px auto;
+        }
+        .must:after{
+            content: "*";
+            color: red;
+            margin-left: 3px;
+        }
+    </style>
+</head>
+
+<body>
+<div>
+    <form id="editForm" class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label must" for="planName">教学计划名称</label>
+            <div class="layui-input-inline">
+                <input type="text" name="planName" id="planName" required placeholder="请输入教学计划名称"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label must" for="uploadPlan">对应文件</label>
+            <button type="button" class="layui-btn" id="uploadPlan"><i class="layui-icon"></i>上传教学计划文件</button>
+            <input class="layui-upload-file" type="file" accept="excel" name="file">
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label"></label>
+            <button type="button" class="layui-btn" id="submit">立即提交</button>
+            <button type="button" class="layui-btn" id="bindFile" style="opacity: 0;">立即提交</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    layui.use(['upload'], function () {
+            var upload = layui.upload;
+            //选完文件后不自动上传
+            upload.render({
+                elem: '#uploadPlan',
+                url: "plan/uploadAddCourses", //上传接口
+                accept: 'file', //普通文件
+                exts: 'xls|xlsx', //允许上传的文件后缀
+                auto: false,
+                bindAction: '#bindFile',
+                data:{
+                    "planName": $("#planName").val()
+                },
+                before: function () {
+                    this.data = {"planName": $("#planName").val()}//携带额外的数据
+                },
+                done: function (response) {
+                    layer.msg(response.msg);
+                    //上传完毕回调
+                },
+                error: function (response) {
+                    layer.msg(response.msg);
+                    //请求异常回调
+                }
+            });
+
+        // 提交表单
+        $('#submit').click(function () {
+            if ($("#planName").val() == "" || $('input[name=file]').val()) {
+                layer.msg("请确保所需信息填写完毕");
+                return;
+            }
+            $('#bindFile').click();
+        })
+
+    })
+</script>
+</body>
+
+</html>

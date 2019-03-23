@@ -35,39 +35,39 @@ public class PlanServiceImpl implements PlanService {
     private PlanCourseMapper planCourseMapper;
 
     /**
-     * @Description: 添加教学计划基本信息
-     * @Param: [planId, planName, planYear]
-     * @return: int
+     * @Description: 上传教学计划文件，将数据导入plan表和plan_course表
+     * @Param: [file, planId]
+     * @return: void
      * @Author: StarryHu
-     * @Date: 2019/3/5
+     * @Date: 2019/3/22
      */
-    public String addPlanInfo(String planName) throws Exception {
-        Plan plan = new Plan();
-        plan.setPlanId(IDGenerator.generator());
-        plan.setPlanName(planName);
-
-        try {
-            int n = planMapper.insertSelective(plan);
-            if (n > 0) {
-                return plan.getPlanId();
-            }
-            throw new SAException(ExceptionEnum.PLAN_ADD_FAIL);
-
-        } catch (Exception e) {
-            throw e;
-        }
-    }
-
-    /** 
-    * @Description: 上传教学计划文件，将数据导入plan表和plan_course表
-    * @Param: [file, planId] 
-    * @return: void 
-    * @Author: StarryHu
-    * @Date: 2019/3/22 
-    */ 
     @Transactional(readOnly = false, rollbackFor = Exception.class)
     @Override
-    public void batchUpload(MultipartFile file, String planId) throws Exception {
+    public void batchUpload(MultipartFile file, String planName) throws Exception {
+        // 添加教学计划基本信息
+        Plan plan;
+        String planId;
+        PlanExample planExample = new PlanExample();
+        planExample.createCriteria().andPlanNameEqualTo(planName);
+        List<Plan> planList = planMapper.selectByExample(planExample);
+        // 检测同名教学计划是否存在;同名教学计划已存在,则使用该教学计划的id为基准
+        // 不存在同名，则插入新的教学计划
+        if (planList.size() == 1) {
+            planId = planList.get(0).getPlanId();
+        } else {
+            plan = new Plan();
+            plan.setPlanId(IDGenerator.generator());
+            plan.setPlanName(planName);
+            planId = plan.getPlanId();
+
+            int n = planMapper.insertSelective(plan);
+            if (n <= 0) {
+                throw new SAException(ExceptionEnum.PLAN_ADD_FAIL);
+            }
+        }
+
+
+        // 导入excel到相关表中
         List<Course> courseList = new ArrayList<>();
 
         InputStream is = file.getInputStream();
@@ -203,13 +203,13 @@ public class PlanServiceImpl implements PlanService {
         }
     }
 
-    /** 
-    * @Description: 删除全部教学计划相关
-    * @Param: [] 
-    * @return: int 
-    * @Author: StarryHu
-    * @Date: 2019/3/22 
-    */ 
+    /**
+     * @Description: 删除全部教学计划相关
+     * @Param: []
+     * @return: int
+     * @Author: StarryHu
+     * @Date: 2019/3/22
+     */
     public int deleteAllPlansRelated() throws Exception {
         // 查出全部的教学计划-课程关系
         PlanCourseExample planCourseExample = new PlanCourseExample();
@@ -219,22 +219,36 @@ public class PlanServiceImpl implements PlanService {
         PlanExample planExample = new PlanExample();
         planExample.createCriteria().andPlanIdIsNotNull();
 
-        try {
-            List<Plan> planList = planMapper.selectByExample(planExample);
-            List<PlanCourse> planCourseList = planCourseMapper.selectByExample(planCourseExample);
+        List<Plan> planList = planMapper.selectByExample(planExample);
+        List<PlanCourse> planCourseList = planCourseMapper.selectByExample(planCourseExample);
 
-            if (planList.size() == 0 && planCourseList.size() == 0) {
-                throw new SAException(ExceptionEnum.PLAN_DATA_EMPTY);
-            }
-            int n1 = planMapper.deleteByExample(planExample);
-            int n2 = planCourseMapper.deleteByExample(planCourseExample);
-
-            if (n1 > 0 && n2 > 0) {
-                return n1 + n2;
-            }
-            throw new SAException(ExceptionEnum.PLAN_DATA_DELETE_FAIL);
-        } catch (Exception e) {
-            throw e;
+        if (planList.size() == 0 && planCourseList.size() == 0) {
+            throw new SAException(ExceptionEnum.PLAN_DATA_EMPTY);
         }
+        int n1 = planMapper.deleteByExample(planExample);
+        int n2 = planCourseMapper.deleteByExample(planCourseExample);
+
+        if (n1 <= 0 && n2 <= 0) {
+            throw new SAException(ExceptionEnum.PLAN_DATA_DELETE_FAIL);
+        } else {
+            return n1 + n2;
+        }
+    }
+
+    /**
+    * @Description: 获得全部教学计划基本信息对象
+    * @Param: []
+    * @return: java.util.List<com.scoreanalysis.bean.Plan>
+    * @Author: StarryHu
+    * @Date: 2019/3/23
+    */
+    public List<Plan> getAllPlans() throws Exception {
+        PlanExample planExample = new PlanExample();
+        planExample.createCriteria().andPlanIdIsNotNull();
+        List<Plan> planList = planMapper.selectByExample(planExample);
+        if (planList.size() == 0){
+            throw new SAException(ExceptionEnum.PLAN_NO_EXIST);
+        }
+        return planList;
     }
 }

@@ -8,7 +8,7 @@ public interface StudentService {
     // 学生课程相关
 
     // 上传学生信息excel
-    void batchUpload(MultipartFile file) throws Exception;
+    void batchUpload(MultipartFile file,String planId) throws Exception;
 
     int deleteAllStusRelated() throws Exception;
 }

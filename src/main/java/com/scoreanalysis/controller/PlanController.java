@@ -1,5 +1,6 @@
 package com.scoreanalysis.controller;
 
+import com.scoreanalysis.bean.Plan;
 import com.scoreanalysis.enums.ResultEnum;
 import com.scoreanalysis.service.PlanService;
 import com.scoreanalysis.util.BaseResponse;
@@ -7,6 +8,8 @@ import com.scoreanalysis.util.ExcelImportUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * @Project scoreanalysis
@@ -65,10 +68,9 @@ public class PlanController extends BaseController {
             return ajaxFail(ResultEnum.EXCEL_FORM_ERROR);
         }
 
-        // 添加教学计划，并获取对应关系的planId值
-        String planId = planService.addPlanInfo(planName);
+        // 添加教学计划基本信息
         // 对planCourse关系表进行处理
-        planService.batchUpload(file, planId);
+        planService.batchUpload(file, planName);
         // 教学计划对应课程关系导入成功
         return ajaxSucc(null, ResultEnum.PLAN_ADD_SUCCESS);
     }
@@ -106,4 +108,20 @@ public class PlanController extends BaseController {
 
         return ajaxSucc(null, ResultEnum.PLAN_DATA_DELETE_SUCC);
     }
+
+    /** 
+    * @Description: 获取全部的教学计划基本信息
+    * @Param: [] 
+    * @return: com.scoreanalysis.util.BaseResponse 
+    * @Author: StarryHu
+    * @Date: 2019/3/23 
+    */ 
+    @GetMapping("/getAllPlans")
+    public BaseResponse getAllPlans() throws Exception{
+        List<Plan> planList = planService.getAllPlans();
+
+        return ajaxSucc(planList,ResultEnum.PLAN_SEARCH_SUCCESS);
+    }
+    
+    
 }

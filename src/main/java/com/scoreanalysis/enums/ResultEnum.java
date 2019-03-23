@@ -46,7 +46,7 @@ public enum  ResultEnum {
     STUDENT_INFO_NOT_FULL(211,"信息填写不完全"),
 
     STUDENT_DATA_ADD_SUCC(226,"学生相关数据添加成功"),
-    STUDENT_DATA_DELETE_SUCC(227,"教学计划相关数据删除成功！"),
+    STUDENT_DATA_DELETE_SUCC(227,"学生相关数据删除成功！"),
 
 
     // 课程相关

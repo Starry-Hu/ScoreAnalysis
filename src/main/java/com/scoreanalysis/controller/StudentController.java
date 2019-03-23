@@ -31,7 +31,7 @@ public class StudentController extends BaseController {
     */
     @ResponseBody
     @PostMapping("/uploadStudentInfo")
-    public BaseResponse addStudentInfo(MultipartFile file) throws Exception {
+    public BaseResponse addStudentInfo(MultipartFile file,String planId) throws Exception {
         // 获取文件名称
         String fileName = file.getOriginalFilename();
         // 检查格式是否正确
@@ -43,7 +43,7 @@ public class StudentController extends BaseController {
         boolean isExcel2003 = excelImportUtil.isExcel2003(fileName);
 
         // 导入学生班级专业信息
-        studentService.batchUpload(file);
+        studentService.batchUpload(file,planId);
 
         // 学生班级专业 信息导入成功
         return ajaxSucc(null, ResultEnum.STUDENT_DATA_ADD_SUCC);

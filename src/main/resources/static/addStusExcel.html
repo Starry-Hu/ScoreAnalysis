@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>添加学生成绩Excel</title>
+    <link href="lib/layui/css/layui.css" rel="stylesheet" type="text/css"/>
+    <script src="js/jquery-3.3.1.js"></script>
+    <script src="lib/layui/layui.js"></script>
+
+    <style>
+        .layui-form-label {
+            width: 110px;
+        }
+
+        .layui-input-block{
+            margin-left: 140px;
+            width: 250px;
+        }
+        form {
+            width: 400px;
+            margin: 30px auto;
+        }
+        .must:after{
+            content: "*";
+            color: red;
+            margin-left: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <form id="editForm" class="layui-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label must">所应用教学计划</label>
+                    <div class="layui-input-block">
+                        <select name="plan" id="plan">
+                            <option value=""></option>
+                        </select>
+                    </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label must" for="uploadStudent">对应文件</label>
+                <button type="button" class="layui-btn" id="uploadStudent"><i class="layui-icon"></i>上传学生成绩文件</button>
+                <input class="layui-upload-file" type="file" accept="excel" name="file">
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"></label>
+                <button type="button" class="layui-btn" id="submit">立即提交</button>
+                <button type="button" class="layui-btn" id="bindFile" style="opacity: 0;">立即提交</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        layui.use(['form','upload'], function () {
+            var form = layui.form;
+            var upload = layui.upload;
+
+            $(function () {
+                $.ajax({
+                    type: "get",
+                    url: "/ScoreAnalysis/plan/getAllPlans", // 需要带上项目名(只有上传文件的时候不需要)
+                    dataType: "json",
+                    async: false,
+                    success: function(response) {
+                            for (let i = 0; i < response.data.length; i++) {
+                                const element = response.data[i];
+                                var $option = `<option value='${element.planId}'> ${element.planName}</option>`;
+                                $('#plan').append($option);
+                            }
+                            form.render();
+                    }
+                });
+            })
+
+
+            //选完文件后不自动上传
+            upload.render({
+                elem: '#uploadStudent', //绑定元素
+                url: 'student/uploadStudentInfo', //上传接口 不需要项目名
+                accept: 'file', //普通文件
+                exts: 'xls|xlsx', //允许上传的文件后缀
+                auto: false,
+                bindAction: '#bindFile',
+                before: function () {
+                    this.data = {"planId": $("#plan").val()}//携带额外的数据
+                },
+                done: function (response) {
+                    layer.msg(response.msg);
+                    //上传完毕回调
+                },
+                error: function (response) {
+                    layer.msg(response.msg);
+                    //请求异常回调
+                }
+            });
+
+            // 提交表单
+            $('#submit').click(function () {
+                if ($("#plan").val() == "" || $('input[name=file]').val()) {
+                    layer.msg("请确保所需信息填写完毕");
+                    return;
+                }
+                $('#bindFile').click();
+            })
+
+        })
+    </script>
+</body>
+
+</html>

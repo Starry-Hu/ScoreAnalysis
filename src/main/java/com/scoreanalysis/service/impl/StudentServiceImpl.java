@@ -48,7 +48,7 @@ public class StudentServiceImpl implements StudentService {
     */ 
     @Transactional(readOnly = false, rollbackFor = Exception.class)
     @Override
-    public void batchUpload(MultipartFile file) throws Exception {
+    public void batchUpload(MultipartFile file,String planId) throws Exception {
         List<StudentExtend> studentExtendList = new ArrayList<>();
 
         InputStream is = file.getInputStream();
@@ -102,7 +102,8 @@ public class StudentServiceImpl implements StudentService {
                     // 取专业枚举值填充专业对象
                     major.setMid(majorEnum.getMid());
                     major.setMname(majorEnum.getMname());
-//                    major.setMplan("20110200");
+                    // 设置该专业对应的教学计划
+                    major.setMplan(planId);
 
                     // 取值填充班级类
                     // 将专业名替代后剩下的部分为班级id,同时并上专业id(e.g:011701/计科1701)
