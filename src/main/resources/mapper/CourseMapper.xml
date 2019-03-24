@@ -2,10 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.scoreanalysis.dao.CourseMapper">
   <resultMap id="BaseResultMap" type="com.scoreanalysis.bean.Course">
-    <id column="cid" jdbcType="VARCHAR" property="cid" />
+    <id column="uucid" jdbcType="VARCHAR" property="uucid" />
+    <result column="cid" jdbcType="VARCHAR" property="cid" />
     <result column="cname" jdbcType="VARCHAR" property="cname" />
     <result column="credit" jdbcType="DOUBLE" property="credit" />
     <result column="kcsx" jdbcType="INTEGER" property="kcsx" />
+    <result column="plan_id" jdbcType="VARCHAR" property="planId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -66,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    cid, cname, credit, kcsx
+    uucid, cid, cname, credit, kcsx, plan_id
   </sql>
   <select id="selectByExample" parameterType="com.scoreanalysis.bean.CourseExample" resultMap="BaseResultMap">
     select
@@ -87,11 +89,11 @@
     select 
     <include refid="Base_Column_List" />
     from course
-    where cid = #{cid,jdbcType=VARCHAR}
+    where uucid = #{uucid,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from course
-    where cid = #{cid,jdbcType=VARCHAR}
+    where uucid = #{uucid,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="com.scoreanalysis.bean.CourseExample">
     delete from course
@@ -100,14 +102,19 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.scoreanalysis.bean.Course">
-    insert into course (cid, cname, credit, 
-      kcsx)
-    values (#{cid,jdbcType=VARCHAR}, #{cname,jdbcType=VARCHAR}, #{credit,jdbcType=DOUBLE}, 
-      #{kcsx,jdbcType=INTEGER})
+    insert into course (uucid, cid, cname, 
+      credit, kcsx, plan_id
+      )
+    values (#{uucid,jdbcType=VARCHAR}, #{cid,jdbcType=VARCHAR}, #{cname,jdbcType=VARCHAR}, 
+      #{credit,jdbcType=DOUBLE}, #{kcsx,jdbcType=INTEGER}, #{planId,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.scoreanalysis.bean.Course">
     insert into course
     <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="uucid != null">
+        uucid,
+      </if>
       <if test="cid != null">
         cid,
       </if>
@@ -120,8 +127,14 @@
       <if test="kcsx != null">
         kcsx,
       </if>
+      <if test="planId != null">
+        plan_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="uucid != null">
+        #{uucid,jdbcType=VARCHAR},
+      </if>
       <if test="cid != null">
         #{cid,jdbcType=VARCHAR},
       </if>
@@ -134,6 +147,9 @@
       <if test="kcsx != null">
         #{kcsx,jdbcType=INTEGER},
       </if>
+      <if test="planId != null">
+        #{planId,jdbcType=VARCHAR},
+      </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="com.scoreanalysis.bean.CourseExample" resultType="java.lang.Long">
@@ -145,6 +161,9 @@
   <update id="updateByExampleSelective" parameterType="map">
     update course
     <set>
+      <if test="record.uucid != null">
+        uucid = #{record.uucid,jdbcType=VARCHAR},
+      </if>
       <if test="record.cid != null">
         cid = #{record.cid,jdbcType=VARCHAR},
       </if>
@@ -157,6 +176,9 @@
       <if test="record.kcsx != null">
         kcsx = #{record.kcsx,jdbcType=INTEGER},
       </if>
+      <if test="record.planId != null">
+        plan_id = #{record.planId,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -164,10 +186,12 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update course
-    set cid = #{record.cid,jdbcType=VARCHAR},
+    set uucid = #{record.uucid,jdbcType=VARCHAR},
+      cid = #{record.cid,jdbcType=VARCHAR},
       cname = #{record.cname,jdbcType=VARCHAR},
       credit = #{record.credit,jdbcType=DOUBLE},
-      kcsx = #{record.kcsx,jdbcType=INTEGER}
+      kcsx = #{record.kcsx,jdbcType=INTEGER},
+      plan_id = #{record.planId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -175,6 +199,9 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.scoreanalysis.bean.Course">
     update course
     <set>
+      <if test="cid != null">
+        cid = #{cid,jdbcType=VARCHAR},
+      </if>
       <if test="cname != null">
         cname = #{cname,jdbcType=VARCHAR},
       </if>
@@ -184,14 +211,19 @@
       <if test="kcsx != null">
         kcsx = #{kcsx,jdbcType=INTEGER},
       </if>
+      <if test="planId != null">
+        plan_id = #{planId,jdbcType=VARCHAR},
+      </if>
     </set>
-    where cid = #{cid,jdbcType=VARCHAR}
+    where uucid = #{uucid,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.scoreanalysis.bean.Course">
     update course
-    set cname = #{cname,jdbcType=VARCHAR},
+    set cid = #{cid,jdbcType=VARCHAR},
+      cname = #{cname,jdbcType=VARCHAR},
       credit = #{credit,jdbcType=DOUBLE},
-      kcsx = #{kcsx,jdbcType=INTEGER}
-    where cid = #{cid,jdbcType=VARCHAR}
+      kcsx = #{kcsx,jdbcType=INTEGER},
+      plan_id = #{planId,jdbcType=VARCHAR}
+    where uucid = #{uucid,jdbcType=VARCHAR}
   </update>
 </mapper>

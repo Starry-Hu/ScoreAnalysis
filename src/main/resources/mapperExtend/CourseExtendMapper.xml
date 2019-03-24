@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.scoreanalysis.daoExtend.CourseExtendMapper">
+
+    <!-- 获取教学计划里应修的课程数组 -->
+    <select id="getMustCoursInPlan" parameterType="java.lang.String" resultType="com.scoreanalysis.bean.Course">
+        SELECT
+        cid,
+        cname,
+        credit,
+        kcsx
+        FROM
+        course
+        WHERE
+        plan_id = #{planId}
+    </select>
+
+    <!-- 获取某学生已修的某类课程（必修/限选/公选） -->
+    <select id="getDoneCoursBySid" resultType="com.scoreanalysis.pojo.StuCourseExtend">
+        SELECT
+        C.cid,
+        cname,
+        credit,
+        kcsx,
+        score
+        FROM
+        student A
+        INNER JOIN stu_course B ON A.sid = B.sid
+        INNER JOIN course C ON B.cid = C.cid
+        WHERE
+        A.sid = #{sid}
+        AND
+        C.kcsx = #{kcsx}
+        AND
+        C.plan_id = #{planId}
+    </select>
+
+</mapper>

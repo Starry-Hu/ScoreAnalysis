@@ -5,7 +5,7 @@
     <id column="scid" jdbcType="VARCHAR" property="scid" />
     <result column="sid" jdbcType="VARCHAR" property="sid" />
     <result column="cid" jdbcType="VARCHAR" property="cid" />
-    <result column="score" jdbcType="INTEGER" property="score" />
+    <result column="score" jdbcType="DOUBLE" property="score" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -103,7 +103,7 @@
     insert into stu_course (scid, sid, cid, 
       score)
     values (#{scid,jdbcType=VARCHAR}, #{sid,jdbcType=VARCHAR}, #{cid,jdbcType=VARCHAR}, 
-      #{score,jdbcType=INTEGER})
+      #{score,jdbcType=DOUBLE})
   </insert>
   <insert id="insertSelective" parameterType="com.scoreanalysis.bean.StuCourse">
     insert into stu_course
@@ -132,7 +132,7 @@
         #{cid,jdbcType=VARCHAR},
       </if>
       <if test="score != null">
-        #{score,jdbcType=INTEGER},
+        #{score,jdbcType=DOUBLE},
       </if>
     </trim>
   </insert>
@@ -155,7 +155,7 @@
         cid = #{record.cid,jdbcType=VARCHAR},
       </if>
       <if test="record.score != null">
-        score = #{record.score,jdbcType=INTEGER},
+        score = #{record.score,jdbcType=DOUBLE},
       </if>
     </set>
     <if test="_parameter != null">
@@ -167,7 +167,7 @@
     set scid = #{record.scid,jdbcType=VARCHAR},
       sid = #{record.sid,jdbcType=VARCHAR},
       cid = #{record.cid,jdbcType=VARCHAR},
-      score = #{record.score,jdbcType=INTEGER}
+      score = #{record.score,jdbcType=DOUBLE}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -182,7 +182,7 @@
         cid = #{cid,jdbcType=VARCHAR},
       </if>
       <if test="score != null">
-        score = #{score,jdbcType=INTEGER},
+        score = #{score,jdbcType=DOUBLE},
       </if>
     </set>
     where scid = #{scid,jdbcType=VARCHAR}
@@ -191,7 +191,7 @@
     update stu_course
     set sid = #{sid,jdbcType=VARCHAR},
       cid = #{cid,jdbcType=VARCHAR},
-      score = #{score,jdbcType=INTEGER}
+      score = #{score,jdbcType=DOUBLE}
     where scid = #{scid,jdbcType=VARCHAR}
   </update>
 </mapper>

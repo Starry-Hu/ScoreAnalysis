@@ -7,7 +7,7 @@ public class StuCourse {
 
     private String cid;
 
-    private Integer score;
+    private Double score;
 
     public String getScid() {
         return scid;
@@ -33,11 +33,11 @@ public class StuCourse {
         this.cid = cid;
     }
 
-    public Integer getScore() {
+    public Double getScore() {
         return score;
     }
 
-    public void setScore(Integer score) {
+    public void setScore(Double score) {
         this.score = score;
     }
 
@@ -48,7 +48,7 @@ public class StuCourse {
 
         StuCourse stuCourse = (StuCourse) o;
 
-//        if (scid != null ? !scid.equals(stuCourse.scid) : stuCourse.scid != null) return false; //uuid生成，无可比性
+//        if (scid != null ? !scid.equals(stuCourse.scid) : stuCourse.scid != null) return false;
         if (sid != null ? !sid.equals(stuCourse.sid) : stuCourse.sid != null) return false;
         if (cid != null ? !cid.equals(stuCourse.cid) : stuCourse.cid != null) return false;
         return score != null ? score.equals(stuCourse.score) : stuCourse.score == null;

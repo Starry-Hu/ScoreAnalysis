@@ -2,15 +2,16 @@ package com.scoreanalysis.dao;
 
 import com.scoreanalysis.bean.Course;
 import com.scoreanalysis.bean.CourseExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface CourseMapper {
     long countByExample(CourseExample example);
 
     int deleteByExample(CourseExample example);
 
-    int deleteByPrimaryKey(String cid);
+    int deleteByPrimaryKey(String uucid);
 
     int insert(Course record);
 
@@ -18,7 +19,7 @@ public interface CourseMapper {
 
     List<Course> selectByExample(CourseExample example);
 
-    Course selectByPrimaryKey(String cid);
+    Course selectByPrimaryKey(String uucid);
 
     int updateByExampleSelective(@Param("record") Course record, @Param("example") CourseExample example);
 

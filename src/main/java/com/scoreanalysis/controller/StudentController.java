@@ -1,15 +1,13 @@
 package com.scoreanalysis.controller;
 
 import com.scoreanalysis.enums.ResultEnum;
-import com.scoreanalysis.pojo.StuCourseExtend;
+import com.scoreanalysis.pojo.StuInfoExtend;
 import com.scoreanalysis.service.StudentService;
 import com.scoreanalysis.util.BaseResponse;
 import com.scoreanalysis.util.ExcelImportUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 /**
  * @Project scoreanalysis
@@ -77,8 +75,9 @@ public class StudentController extends BaseController {
     @GetMapping("/getStuInfoBySid")
     public BaseResponse getStuInfoBySid(String sid) throws Exception{
         // 根据学号获取该学生的修课情况
-        List<StuCourseExtend> list = studentService.getStuInfoBySid(sid);
+//        List<StuCourseExtend> list = studentService.getStuInfoBySid(sid);
 
-        return ajaxSucc(list,ResultEnum.STUDENT_SEARCH_SUCCESS);
+        StuInfoExtend stuInfoExtend = studentService.getStuInfoBySid(sid);
+        return ajaxSucc(stuInfoExtend,ResultEnum.STUDENT_SEARCH_SUCCESS);
     }
 }

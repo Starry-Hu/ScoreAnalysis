@@ -1,8 +1,10 @@
 package com.scoreanalysis.service.impl;
 
-import com.scoreanalysis.bean.*;
+import com.scoreanalysis.bean.Course;
+import com.scoreanalysis.bean.CourseExample;
+import com.scoreanalysis.bean.Plan;
+import com.scoreanalysis.bean.PlanExample;
 import com.scoreanalysis.dao.CourseMapper;
-import com.scoreanalysis.dao.PlanCourseMapper;
 import com.scoreanalysis.dao.PlanMapper;
 import com.scoreanalysis.enums.ExceptionEnum;
 import com.scoreanalysis.exception.SAException;
@@ -31,11 +33,9 @@ public class PlanServiceImpl implements PlanService {
     private PlanMapper planMapper;
     @Autowired
     private CourseMapper courseMapper;
-    @Autowired
-    private PlanCourseMapper planCourseMapper;
 
     /**
-     * @Description: 上传教学计划文件，将数据导入plan表和plan_course表
+     * @Description: 上传教学计划文件，添加基本信息入plan表，并将数据导入course表和plan_course表
      * @Param: [file, planId]
      * @return: void
      * @Author: StarryHu
@@ -112,61 +112,66 @@ public class PlanServiceImpl implements PlanService {
             if (kcsx == null || kcsx.isEmpty()) {
                 throw new Exception("导入失败(第" + (r + 1) + "行,课程属性未填写)");
             }
-            // 是必修
+            // 分情况赋各种课程属性值，并设置非必修课程的通用课程号
             if (kcsx.equals("必修")) {
                 course.setKcsx(0);
             } else if (kcsx.equals("限选")) {
+                cid = "88888888x";
+                cname = "限选";
                 course.setKcsx(1);
             } else if (kcsx.equals("公选")) {
+                cid = "99999999x";
+                cname = "公选";
                 course.setKcsx(2);
             } else {
                 throw new Exception("导入失败(第" + (r + 1) + "行,课程属性填写不正确)");
             }
 
             //完整的循环一次 就组成了一个对象
+            course.setUucid(IDGenerator.generator());
             course.setCid(cid);
             course.setCname(cname);
             course.setCredit(credit);
+            course.setPlanId(planId);
             courseList.add(course);
-
         }
 
         // 插入或更新课程列表
         for (Course courseRecord : courseList) {
             // 获取相同课程号的课程
-            String cid = courseRecord.getCid();
-            Course testCourse = courseMapper.selectByPrimaryKey(cid);
+            CourseExample courseExample = new CourseExample();
+            courseExample.createCriteria().andCidEqualTo(courseRecord.getCid());
+            List<Course> testCourlist = courseMapper.selectByExample(courseExample);
 
-            PlanCourseExample example = new PlanCourseExample();
-            PlanCourseExample.Criteria criteria = example.createCriteria();
-            criteria.andPlanIdEqualTo(planId);
-            criteria.andCidEqualTo(cid);
-            // 获取相同的planid和cid的教学计划_课程关系
-            List<PlanCourse> testList = planCourseMapper.selectByExample(example);
-
-            // 建立计划_课程关系对象
-            String pcid = IDGenerator.generator();
-            PlanCourse planCourse = new PlanCourse();
-            planCourse.setPcid(pcid);
-            planCourse.setPlanId(planId);
-            planCourse.setCid(cid);
-
-            // 分情况讨论不同的处理方式
-            if (testCourse == null) {
-                // 课程不存在时,课程和关系都添加
+            // 分情况讨论该课程号对应的课程是否存在；执行不同的处理方式
+            if (testCourlist.size() == 0) {
+                // 不存在时则添加
                 courseMapper.insert(courseRecord);
-                planCourseMapper.insert(planCourse);
-            } else if (testList.size() == 0) {
-                // 课程存在-若对比发现不同则更新，否则不管；关系不存在-添加
-                if (!testCourse.equals(courseRecord)) {
-                    courseMapper.updateByPrimaryKeySelective(courseRecord);
-                }
-                planCourseMapper.insert(planCourse);
             } else {
-                // 都存在时，只需要对比发现是否需要更新原课程信息即可。
-                // 关系对象是不变的（存在）
-                if (!testCourse.equals(courseRecord)) {
-                    courseMapper.updateByPrimaryKeySelective(courseRecord);
+                // 记录是否教学计划不同
+                boolean planSame = false;
+                // 遍历相同课程号的课程数组
+                for (Course testCourse:testCourlist) {
+                    // 如果存在某个课程与现在课程完全相同（除uucid），则退出循环
+                    if (testCourse.equals(courseRecord)) {
+                        planSame = true;
+                        break;
+                    } else{
+                        // 课程存在:若对比发现不同则判断是否是教学计划不同(目的是找教学计划相同的那个课程)
+                        // 如果两者的教学计划不同,则将新的课程对象插入;（全部遍历完之后没有找到相同教学计划的那个课程）
+                        // 而如果教学计划相同,则是课程对象自身信息不同;由于uuid所以将原来的删掉再添加新的,并退出循环
+                        if (testCourse.getPlanId().equals(courseRecord.getPlanId())) {
+                            planSame = true;
+                            courseMapper.deleteByPrimaryKey(testCourse.getUucid());
+                            courseMapper.insert(courseRecord);
+                            break;
+                        }
+                    }
+                }
+
+                // 如果遍历完发现存在课程号相同的但是教学计划不同，则插入该新数据
+                if (!planSame){
+                    courseMapper.insert(courseRecord);
                 }
             }
         }
@@ -180,27 +185,25 @@ public class PlanServiceImpl implements PlanService {
      * @Date: 2019/3/10
      */
     public int deletePlanRelated(String planId) throws Exception {
-        PlanCourseExample example = new PlanCourseExample();
-        PlanCourseExample.Criteria criteria = example.createCriteria();
-        criteria.andPlanIdEqualTo(planId);
+        // 查出所有的课程信息
+        CourseExample courseExample = new CourseExample();
+        courseExample.createCriteria().andCidIsNotNull();
 
-        try {
-            Plan testPlan = planMapper.selectByPrimaryKey(planId);
-            List<PlanCourse> planCourseList = planCourseMapper.selectByExample(example);
-            if (testPlan == null || planCourseList.size() == 0) {
-                throw new SAException(ExceptionEnum.PLAN_DATA_EMPTY);
-            }
-
-            // 删除教学计划课程关系  和   教学计划
-            int n1 = planCourseMapper.deleteByExample(example);
-            int n2 = planMapper.deleteByPrimaryKey(planId);
-            if (n1 > 0 && n2 > 0) {
-                return n1 + n2;
-            }
-            throw new SAException(ExceptionEnum.PLAN_DATA_DELETE_FAIL);
-        } catch (Exception e) {
-            throw e;
+        // 查找教学计划、全部课程
+        Plan testPlan = planMapper.selectByPrimaryKey(planId);
+        List<Course> courseList = courseMapper.selectByExample(courseExample);
+        if (testPlan == null || courseList.size() == 0) {
+            throw new SAException(ExceptionEnum.PLAN_DATA_EMPTY);
         }
+
+        // 删除教学计划,课程和教学计划课程关系
+        int n1 = courseMapper.deleteByExample(courseExample);
+        int n2 = planMapper.deleteByPrimaryKey(planId);
+
+        if (n1 <= 0 || n2 <= 0) {
+            throw new SAException(ExceptionEnum.PLAN_DATA_DELETE_FAIL);
+        }
+        return n1 + n2;
     }
 
     /**
@@ -211,42 +214,41 @@ public class PlanServiceImpl implements PlanService {
      * @Date: 2019/3/22
      */
     public int deleteAllPlansRelated() throws Exception {
-        // 查出全部的教学计划-课程关系
-        PlanCourseExample planCourseExample = new PlanCourseExample();
-        planCourseExample.createCriteria().andPcidIsNotNull();
-
         // 查出全部的教学计划
         PlanExample planExample = new PlanExample();
         planExample.createCriteria().andPlanIdIsNotNull();
 
-        List<Plan> planList = planMapper.selectByExample(planExample);
-        List<PlanCourse> planCourseList = planCourseMapper.selectByExample(planCourseExample);
+        // 查出全部的课程
+        CourseExample courseExample = new CourseExample();
+        courseExample.createCriteria().andCidIsNotNull();
 
-        if (planList.size() == 0 && planCourseList.size() == 0) {
+        List<Plan> planList = planMapper.selectByExample(planExample);
+        List<Course> courseList = courseMapper.selectByExample(courseExample);
+
+        if (planList.size() == 0 || courseList.size() == 0) {
             throw new SAException(ExceptionEnum.PLAN_DATA_EMPTY);
         }
         int n1 = planMapper.deleteByExample(planExample);
-        int n2 = planCourseMapper.deleteByExample(planCourseExample);
+        int n2 = courseMapper.deleteByExample(courseExample);
 
-        if (n1 <= 0 && n2 <= 0) {
+        if (n1 <= 0 || n2 <= 0) {
             throw new SAException(ExceptionEnum.PLAN_DATA_DELETE_FAIL);
-        } else {
-            return n1 + n2;
         }
+        return n1 + n2;
     }
 
     /**
-    * @Description: 获得全部教学计划基本信息对象
-    * @Param: []
-    * @return: java.util.List<com.scoreanalysis.bean.Plan>
-    * @Author: StarryHu
-    * @Date: 2019/3/23
-    */
+     * @Description: 获得全部教学计划基本信息对象
+     * @Param: []
+     * @return: java.util.List<com.scoreanalysis.bean.Plan>
+     * @Author: StarryHu
+     * @Date: 2019/3/23
+     */
     public List<Plan> getAllPlans() throws Exception {
         PlanExample planExample = new PlanExample();
         planExample.createCriteria().andPlanIdIsNotNull();
         List<Plan> planList = planMapper.selectByExample(planExample);
-        if (planList.size() == 0){
+        if (planList.size() == 0) {
             throw new SAException(ExceptionEnum.PLAN_NO_EXIST);
         }
         return planList;
