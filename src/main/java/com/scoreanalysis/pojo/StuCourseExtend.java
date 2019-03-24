@@ -13,7 +13,7 @@ public class StuCourseExtend {
     // 课程名称
     private String cname;
     // 课程成绩(在非必修课程里score用来记录这类课程已修的学分数)
-    private int score;
+    private double score;
     // 课程学分
     private double credit;
     // 课程属性
@@ -35,11 +35,11 @@ public class StuCourseExtend {
         this.cname = cname;
     }
 
-    public int getScore() {
+    public double getScore() {
         return score;
     }
 
-    public void setScore(int score) {
+    public void setScore(double score) {
         this.score = score;
     }
 

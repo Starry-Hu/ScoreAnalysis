@@ -3,6 +3,7 @@ package com.scoreanalysis.service.impl;
 import com.scoreanalysis.bean.*;
 import com.scoreanalysis.dao.*;
 import com.scoreanalysis.daoExtend.CourseExtendMapper;
+import com.scoreanalysis.daoExtend.StuInfoExtendMapper;
 import com.scoreanalysis.enums.ExceptionEnum;
 import com.scoreanalysis.enums.MajorEnum;
 import com.scoreanalysis.exception.SAException;
@@ -40,6 +41,8 @@ public class StudentServiceImpl implements StudentService {
     private StuCourseMapper stuCourseMapper;
     @Autowired
     private CourseExtendMapper courseExtendMapper;
+    @Autowired
+    private StuInfoExtendMapper stuInfoExtendMapper;
 
     /**
      * @Description: 上传学生成绩信息相关，将数据导入student表，stuClass表以及major表
@@ -117,14 +120,12 @@ public class StudentServiceImpl implements StudentService {
             }
 
             // 课程-学生对应关系（一门）
-
             // 课程号
             row.getCell(5).setCellType(Cell.CELL_TYPE_STRING);
             String cid = row.getCell(5).getStringCellValue();
             if (cid == null || cid.isEmpty()) {
                 throw new Exception("导入失败(第" + (r + 1) + "行,课程号未填写)");
             }
-
 
             // 课程属性;在课程属性是非必修的时候设置特定通用的课程号;必修则指定为对应的课程属性代号
             String kcsxValue = row.getCell(9).getStringCellValue();
@@ -170,7 +171,6 @@ public class StudentServiceImpl implements StudentService {
             student.setSid(sid);
             student.setSname(sname);
             student.setSclass(stuClass.getClsid());
-            student.setSmajor(major.getMid());
 
             // 填充到扩展类对象中
             studentExtend.setStudent(student);
@@ -182,7 +182,7 @@ public class StudentServiceImpl implements StudentService {
         }
 
         // 设置第一次判断是否限选/公选,以便于后边遍历时在第一次满足条件时将原数据库的对应选修课程学分清0（此处对应score）
-        boolean firstXuan1 = true,firstXuan2 = true;
+        boolean firstXuan1 = true, firstXuan2 = true;
 
         // 插入或更新学生列表
         for (StudentExtend extend : studentExtendList) {
@@ -227,12 +227,12 @@ public class StudentServiceImpl implements StudentService {
             } else {
                 // 非必修要获取原score值加上现在score的值来进行修改
                 String testCidXuan = testList.get(0).getCid();
-                if (testCidXuan.equals("88888888x")  || testCidXuan.equals("99999999x")) {
+                if (testCidXuan.equals("88888888x") || testCidXuan.equals("99999999x")) {
                     // 判断是否是本次上传时第一次遍历到公选课程，如果是则将原数据库的对应公选学分清0，再累加
-                    if (testCidXuan.equals("88888888x") && firstXuan1 ){
+                    if (testCidXuan.equals("88888888x") && firstXuan1) {
                         firstXuan1 = false;
                         testList.get(0).setScore(0.0);
-                    }else if (testCidXuan.equals("99999999x") && firstXuan2 ){
+                    } else if (testCidXuan.equals("99999999x") && firstXuan2) {
                         firstXuan2 = false;
                         testList.get(0).setScore(0.0);
                     }
@@ -310,37 +310,127 @@ public class StudentServiceImpl implements StudentService {
      * @Date: 2019/3/23
      */
     public StuInfoExtend getStuInfoBySid(String sid) throws Exception {
-        // 获取学生对象，同时得到对应的专业号
+        // 获取学生对象 -> 班级 -> 专业
         Student student = studentMapper.selectByPrimaryKey(sid);
         if (student == null) {
             throw new SAException(ExceptionEnum.STUDENT__NO_EXIST);
         }
-        String smajor = student.getSmajor();
+        StuClass stuClass = stuClassMapper.selectByPrimaryKey(student.getSclass());
+        String smajor = stuClass.getClsMajor();
         // 根据专业号获取教学计划id
         String planId = majorMapper.selectByPrimaryKey(smajor).getMplan();
-        // 根据教学计划id获取所需要修的全部必修课程 (使用扩展CourseExtendMapper查找)
-        // [选修课程直接在学生的成绩单上判断（排除了大学四年一次都没选修的情况，进行了一定的优化）]
-        List<Course> mustCourses1 = courseExtendMapper.getMustCoursInPlan(planId);
+        // 根据教学计划id获取所需要修的全部课程 (使用扩展CourseExtendMapper查找)
+        List<Course> mustCourses = courseExtendMapper.getMustCoursInPlan(planId);
 
         // 根据学生id获取对应的教学计划中-已修的全部必修课程、限选课程、公选课程(0/1/2)
-        List<StuCourseExtend> doneCourses0 = courseExtendMapper.getDoneCoursBySid(sid,0,planId);
-        List<StuCourseExtend> doneCourses1 = courseExtendMapper.getDoneCoursBySid(sid,1,planId);
-        List<StuCourseExtend> doneCourses2 = courseExtendMapper.getDoneCoursBySid(sid,2,planId);
+        List<StuCourseExtend> doneCourses0 = courseExtendMapper.getDoneCoursBySid(sid, 0, planId);
+        List<StuCourseExtend> doneCourses1 = courseExtendMapper.getDoneCoursBySid(sid, 1, planId);
+        List<StuCourseExtend> doneCourses2 = courseExtendMapper.getDoneCoursBySid(sid, 2, planId);
 
         // 建立未修够课程数组
         List<StuCourseExtend> undoCourse = new ArrayList<>();
-        // 建立学生信息扩展对象
-        StuInfoExtend stuInfoExtend = new StuInfoExtend();
-        stuInfoExtend.setSid(sid);
-        stuInfoExtend.setSname(student.getSname());
-        String className = stuClassMapper.selectByPrimaryKey(student.getSclass()).getClsName();
-        stuInfoExtend.setClassName(className);
-        String majorName = majorMapper.selectByPrimaryKey(student.getSmajor()).getMname();
-        stuInfoExtend.setMajorName(majorName);
+        // 通过学生id直接获取到学生信息扩展对象（已填充基本信息）
+        StuInfoExtend stuInfoExtend = stuInfoExtendMapper.getStuBasicInfoBySid(sid);
         stuInfoExtend.setUndoCourse(undoCourse);
 
+        // 对学生已修课程与教学计划课程进行比较
+        handleStuCourCompare(mustCourses, doneCourses0, doneCourses1, doneCourses2, undoCourse);
+
+        return stuInfoExtend;
+    }
+
+    /**
+     * @Description: 根据班级获取该班级全部学生的相关修课信息
+     * @Param: [clsId]
+     * @return: java.util.List<com.scoreanalysis.pojo.StuInfoExtend>
+     * @Author: StarryHu
+     * @Date: 2019/3/24
+     */
+    public List<StuInfoExtend> getStuInfoByStuCls(String clsId) throws Exception {
+        // 根据班级号获取班级信息，同时获取专业号以此获取对应教学计划号
+        StuClass stuClass = stuClassMapper.selectByPrimaryKey(clsId);
+        if (stuClass == null) {
+            throw new SAException(ExceptionEnum.CLASS_NO_EXIST);
+        }
+        String clsMajor = stuClass.getClsMajor();
+        String planId = majorMapper.selectByPrimaryKey(clsMajor).getMplan();
+
+        // 根据教学计划id获取所需要修的全部课程 (使用扩展CourseExtendMapper查找)
+        List<Course> mustCourses = courseExtendMapper.getMustCoursInPlan(planId);
+
+        // 通过学生id直接获取到学生信息扩展对象（已填充基本信息）
+        List<StuInfoExtend> stuInfoExtendList = stuInfoExtendMapper.getAllStusBasicInfoByClsId(clsId);
+
+        // 处理多学生（数组）的已修课程与教学计划要求全部课程的筛选
+        handleMoreStusCourInSelect(stuInfoExtendList, planId, mustCourses);
+
+        return stuInfoExtendList;
+    }
+
+    /**
+     * @Description: 获取某个专业的全部学生的修课情况
+     * @Param: [majorId]
+     * @return: java.util.List<com.scoreanalysis.pojo.StuInfoExtend>
+     * @Author: StarryHu
+     * @Date: 2019/3/24
+     */
+    public List<StuInfoExtend> getStuInfoByMajor(String majorId) throws Exception {
+        // 根据专业号获取对应专业 -> 教学计划id
+        Major major = majorMapper.selectByPrimaryKey(majorId);
+        if (major == null) {
+            throw new SAException(ExceptionEnum.MAJOR_NO_EXIST);
+        }
+        String planId = major.getMplan();
+        // 根据教学计划id获取所需要修的全部课程 (使用扩展CourseExtendMapper查找)
+        List<Course> mustCourses = courseExtendMapper.getMustCoursInPlan(planId);
+
+        // 通过学生id直接获取到学生信息扩展对象（已填充基本信息）
+        List<StuInfoExtend> stuInfoExtendList = stuInfoExtendMapper.getAllStusBasicInfoByMajor(majorId);
+
+        // 处理多学生（数组）的已修课程与教学计划要求全部课程的筛选
+        handleMoreStusCourInSelect(stuInfoExtendList, planId, mustCourses);
+
+        return stuInfoExtendList;
+    }
+
+
+    /**
+     * @Description: 处理多学生（数组）的已修课程与教学计划要求全部课程的筛选
+     * @Param: [stuInfoExtendList, planId, mustCourses]
+     * 参数分别为：学生信息扩展对象数组，所属教学计划id，教学计划要求全部课程数组
+     * @return: void
+     * @Author: StarryHu
+     * @Date: 2019/3/24
+     */
+    private void handleMoreStusCourInSelect(List<StuInfoExtend> stuInfoExtendList, String planId, List<Course> mustCourses) {
+        for (StuInfoExtend extend : stuInfoExtendList) {
+            // 建立未修够课程数组
+            List<StuCourseExtend> undoCourse = new ArrayList<>();
+            extend.setUndoCourse(undoCourse);
+            String sid = extend.getSid();
+
+            // 根据学生id获取对应的教学计划中-已修的全部必修课程、限选课程、公选课程(0/1/2)
+            List<StuCourseExtend> doneCourses0 = courseExtendMapper.getDoneCoursBySid(sid, 0, planId);
+            List<StuCourseExtend> doneCourses1 = courseExtendMapper.getDoneCoursBySid(sid, 1, planId);
+            List<StuCourseExtend> doneCourses2 = courseExtendMapper.getDoneCoursBySid(sid, 2, planId);
+
+            // 对学生已修课程与教学计划课程进行比较
+            handleStuCourCompare(mustCourses, doneCourses0, doneCourses1, doneCourses2, undoCourse);
+        }
+    }
+
+    /**
+     * @Description: 对学生已修课程与教学计划课程进行比较
+     * @Param: [mustCourses, doneCourses0, doneCourses1, doneCourses2, undoCourse]
+     * 参数分别为：教学计划要求的全部课程数组，学生已修的全部必修课程数组，学生已修的全部限选课程数组，学生已修的全部公选课程数组，存储-学生未修够要求课程数组
+     * @return: void
+     * @Author: StarryHu
+     * @Date: 2019/3/24
+     */
+    private void handleStuCourCompare(List<Course> mustCourses, List<StuCourseExtend> doneCourses0,
+                                      List<StuCourseExtend> doneCourses1, List<StuCourseExtend> doneCourses2, List<StuCourseExtend> undoCourse) {
         // 使用双重for循环
-        for (Course mustOne : mustCourses1) {
+        for (Course mustOne : mustCourses) {
             // 如果遍历到教学计划中的课程是必修课程，则进入学生已修的必修课程数组里面找
             if (mustOne.getKcsx() == 0) {
                 boolean leaveAdvance = false;
@@ -371,27 +461,42 @@ public class StudentServiceImpl implements StudentService {
 
             } else if (mustOne.getKcsx() == 1) {
                 // 进入学生的限选课程，处理限选课程
-                handleNoAcquiredCourses(doneCourses1, undoCourse);
+                handleNoAcquiredCourses(doneCourses1, mustOne, undoCourse);
             } else {
                 // 进入学生的公选课程，处理公选课程
-                handleNoAcquiredCourses(doneCourses2, undoCourse);
+                handleNoAcquiredCourses(doneCourses2, mustOne, undoCourse);
             }
-
         }
-        return stuInfoExtend;
     }
 
     /**
      * @Description: 处理非必修课程（两大类：1限选2公选）
-     * @Param: [doneCourseNoAcquired, undoCourse]
-     * 参数分别为：学生的此类非必修课程的学生课程关系数组(一个元素，对其操作即可)，未修够学分的学生课程关系数组
+     * @Param: [doneCourseNoAcquired, mustOne, undoCourse]
+     * 参数分别为：学生的此类非必修课程的学生课程关系数组(一个元素，如不空对其操作即可)，教学计划标准对象，未修够学分的学生课程关系数组
      * 需要注意！！！非必修课程对应的学生课程关系对象里，score为其修得的学分而非credit！（credit为教学计划要求的此类选修课需要的学分）
-     * 因此用这个对象的score与credit两两比较即可
+     * 因此如果这个对象存在则用这个对象的score与credit两两比较即可
      * @return: void
      * @Author: StarryHu
      * @Date: 2019/3/23
      */
-    private void handleNoAcquiredCourses(List<StuCourseExtend> doneCourseNoAcquired, List<StuCourseExtend> undoCourse) {
+    private void handleNoAcquiredCourses(List<StuCourseExtend> doneCourseNoAcquired, Course mustOne,
+                                         List<StuCourseExtend> undoCourse) {
+        // 如果学生对应的该类选修课程数组长度为0（未选过此类选修），则直接添加到undoCourse
+        if (doneCourseNoAcquired.size() == 0) {
+            // 建立学生_课程关系对象并将数据填充进去
+            StuCourseExtend temp = new StuCourseExtend();
+            temp.setCid(mustOne.getCid());
+            temp.setCname(mustOne.getCname());
+            temp.setCredit(mustOne.getCredit()); // 要求的学分
+            temp.setScore(mustOne.getCredit());// 现在已修的学分
+            temp.setKcsx(mustOne.getKcsx());
+
+            // 加入未修课程数组中
+            undoCourse.add(temp);
+            System.out.println("未修够" + mustOne.getCname() + "---" + mustOne.getCredit());
+            return;
+        }
+
         // 进入学生的某一类的非必修课程，进行学分累加（可以是限选/公选）
         // 只要累计修学分达到要求即可，不需要分数判断
         StuCourseExtend doneOne = doneCourseNoAcquired.get(0);
@@ -403,8 +508,8 @@ public class StudentServiceImpl implements StudentService {
             StuCourseExtend temp = new StuCourseExtend();
             temp.setCid(doneOne.getCid());
             temp.setCname(doneOne.getCname());
-            temp.setCredit(doneOne.getCredit() - doneOne.getScore()); // 相差得学分
-            temp.setScore(0);
+            temp.setCredit(doneOne.getCredit()); // 要求的学分
+            temp.setScore(doneOne.getScore()); // 现在已修的学分
             temp.setKcsx(doneOne.getKcsx());
 
             // 加入未修课程数组中

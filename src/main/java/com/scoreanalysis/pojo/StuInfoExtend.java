@@ -6,7 +6,7 @@ import java.util.List;
  * @Project scoreanalysis
  * @ClassName StuInfoExtend
  * @Author StarryHu
- * @Description 用于筛选学生课程信息的扩展学生类
+ * @Description 用于筛选学生课程信息的扩展学生类(业务展示)
  * @Date 2019/3/23 15:41
  */
 public class StuInfoExtend {

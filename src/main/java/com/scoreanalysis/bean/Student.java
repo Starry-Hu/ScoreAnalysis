@@ -7,8 +7,6 @@ public class Student {
 
     private String sclass;
 
-    private String smajor;
-
     public String getSid() {
         return sid;
     }
@@ -33,14 +31,6 @@ public class Student {
         this.sclass = sclass;
     }
 
-    public String getSmajor() {
-        return smajor;
-    }
-
-    public void setSmajor(String smajor) {
-        this.smajor = smajor;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -50,8 +40,7 @@ public class Student {
 
         if (sid != null ? !sid.equals(student.sid) : student.sid != null) return false;
         if (sname != null ? !sname.equals(student.sname) : student.sname != null) return false;
-        if (sclass != null ? !sclass.equals(student.sclass) : student.sclass != null) return false;
-        return smajor != null ? smajor.equals(student.smajor) : student.smajor == null;
+        return sclass != null ? sclass.equals(student.sclass) : student.sclass == null;
     }
 
     @Override
@@ -59,7 +48,6 @@ public class Student {
         int result = sid != null ? sid.hashCode() : 0;
         result = 31 * result + (sname != null ? sname.hashCode() : 0);
         result = 31 * result + (sclass != null ? sclass.hashCode() : 0);
-        result = 31 * result + (smajor != null ? smajor.hashCode() : 0);
         return result;
     }
 }

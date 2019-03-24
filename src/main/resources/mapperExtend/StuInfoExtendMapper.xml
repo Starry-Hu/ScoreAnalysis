@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.scoreanalysis.daoExtend.StuInfoExtendMapper">
+
+    <!-- 根据学生id获取学生信息扩展对象的基本信息（除未修课程） -->
+    <select id="getStuBasicInfoBySid" parameterType="java.lang.String" resultType="com.scoreanalysis.pojo.StuInfoExtend">
+        SELECT
+        sid,
+        sname,
+        cls_name AS className,
+        mname AS majorName
+        FROM
+        student A
+        INNER JOIN stu_class B ON A.sclass = B.clsid
+        INNER JOIN major C ON B.cls_major = C.mid
+        WHERE
+        A.sid = #{sid}
+    </select>
+
+    <!-- 根据学生班级获取全部学生信息扩展对象的基本信息（除未修课程） -->
+    <select id="getAllStusBasicInfoByClsId" parameterType="java.lang.String" resultType="com.scoreanalysis.pojo.StuInfoExtend">
+        SELECT
+        sid,
+        sname,
+        cls_name AS className,
+        mname AS majorName
+        FROM
+        student A
+        INNER JOIN stu_class B ON A.sclass = B.clsid
+        INNER JOIN major C ON B.cls_major = C.mid
+        WHERE
+        A.sclass = #{clsid}
+    </select>
+
+    <!-- 根据专业获取全部学生信息扩展对象的基本信息（除未修课程） -->
+    <select id="getAllStusBasicInfoByMajor" parameterType="java.lang.String" resultType="com.scoreanalysis.pojo.StuInfoExtend">
+        SELECT
+        sid,
+        sname,
+        cls_name AS className,
+        mname AS majorName
+        FROM
+        student A
+        INNER JOIN stu_class B ON A.sclass = B.clsid
+        INNER JOIN major C ON B.cls_major = C.mid
+        WHERE
+        C.mid = #{majorId}
+    </select>
+</mapper>
