@@ -1,7 +1,12 @@
 package com.scoreanalysis.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.scoreanalysis.bean.*;
-import com.scoreanalysis.dao.*;
+import com.scoreanalysis.dao.MajorMapper;
+import com.scoreanalysis.dao.StuClassMapper;
+import com.scoreanalysis.dao.StuCourseMapper;
+import com.scoreanalysis.dao.StudentMapper;
 import com.scoreanalysis.daoExtend.CourseExtendMapper;
 import com.scoreanalysis.daoExtend.StuInfoExtendMapper;
 import com.scoreanalysis.enums.ExceptionEnum;
@@ -12,6 +17,7 @@ import com.scoreanalysis.pojo.StuInfoExtend;
 import com.scoreanalysis.pojo.StudentExtend;
 import com.scoreanalysis.service.StudentService;
 import com.scoreanalysis.util.IDGenerator;
+import com.scoreanalysis.util.PageBean;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -392,7 +398,88 @@ public class StudentServiceImpl implements StudentService {
 
         return stuInfoExtendList;
     }
+// 分页相关
 
+    /**
+     * @Description: 根据班级获取该班级全部学生的相关修课信息(带分页)
+     * @Param: [clsId, pageNum, pageSize] (班级id，当前页的大小，每页数)
+     * @return: com.scoreanalysis.util.PageBean<com.scoreanalysis.pojo.StuInfoExtend>
+     * @Author: StarryHu
+     * @Date: 2019/3/24
+     */
+    public PageBean<StuInfoExtend> getStuInfoByStuClsWithPage(String clsId, int pageNum, int pageSize) throws Exception {
+        // 根据班级号获取班级信息，同时获取专业号以此获取对应教学计划号
+        StuClass stuClass = stuClassMapper.selectByPrimaryKey(clsId);
+        if (stuClass == null) {
+            throw new SAException(ExceptionEnum.CLASS_NO_EXIST);
+        }
+        String clsMajor = stuClass.getClsMajor();
+        String planId = majorMapper.selectByPrimaryKey(clsMajor).getMplan();
+
+        // 根据教学计划id获取所需要修的全部课程 (使用扩展CourseExtendMapper查找)
+        List<Course> mustCourses = courseExtendMapper.getMustCoursInPlan(planId);
+
+        // 通过学生id直接获取到学生信息扩展对象（已填充基本信息）
+        // 拿到数据库里的全部数据 有多少拿多少（总数）
+        List<StuInfoExtend> allDatas = stuInfoExtendMapper.getAllStusBasicInfoByClsId(clsId);
+
+
+        // ---进行分页处理---
+        // 获取全部数量  同时建立pagebean对象
+        int totalRecord = allDatas.size();
+        PageBean<StuInfoExtend> pBean = new PageBean<>(pageNum, pageSize, totalRecord);
+        // 获取pagebean对象的startIndex
+        int startIndex = pBean.getStartIndex();
+
+        // 查找对应的数据
+        List<StuInfoExtend> realDatas = stuInfoExtendMapper.getAllStusBasicInfoByClsIdWithPage(clsId, startIndex, pageSize);
+
+        // 处理多学生（数组）的已修课程与教学计划要求全部课程的筛选[只处理指定页数个数的数据]
+        handleMoreStusCourInSelect(realDatas, planId, mustCourses);
+
+        // 设置list对应的数据对象
+        pBean.setList(realDatas);
+        return pBean;
+    }
+
+
+    /**
+     * @Description: 根据专业获取该专业全部学生的相关修课信息(带分页)
+     * @Param: [majorId, pageNum, pageSize] (专业id，当前页的大小，每页数)
+     * @return: com.scoreanalysis.util.PageBean<com.scoreanalysis.pojo.StuInfoExtend>
+     * @Author: StarryHu
+     * @Date: 2019/3/24
+     */
+    public PageBean<StuInfoExtend> getStuInfoByMajorWithPage(String majorId, int pageNum, int pageSize) throws Exception {
+        // 根据专业号获取对应专业 -> 教学计划id
+        Major major = majorMapper.selectByPrimaryKey(majorId);
+        if (major == null) {
+            throw new SAException(ExceptionEnum.MAJOR_NO_EXIST);
+        }
+        String planId = major.getMplan();
+        // 根据教学计划id获取所需要修的全部课程 (使用扩展CourseExtendMapper查找)
+        List<Course> mustCourses = courseExtendMapper.getMustCoursInPlan(planId);
+
+        // 通过学生id直接获取到学生信息扩展对象（已填充基本信息）
+        List<StuInfoExtend> allDatas = stuInfoExtendMapper.getAllStusBasicInfoByMajor(majorId);
+
+        // ---进行分页处理---
+        // 获取全部数量  同时建立pagebean对象
+        int totalRecord = allDatas.size();
+        PageBean<StuInfoExtend> pBean = new PageBean<>(pageNum, pageSize, totalRecord);
+        // 获取pagebean对象的startIndex
+        int startIndex = pBean.getStartIndex();
+
+        // 查找对应的数据
+        List<StuInfoExtend> realDatas = stuInfoExtendMapper.getAllStusBasicInfoByMajorWithPage(majorId, startIndex, pageSize);
+
+        // 处理多学生（数组）的已修课程与教学计划要求全部课程的筛选[只处理指定页数个数的数据]
+        handleMoreStusCourInSelect(realDatas, planId, mustCourses);
+
+        // 设置list对应的数据对象
+        pBean.setList(realDatas);
+        return pBean;
+    }
 
     /**
      * @Description: 处理多学生（数组）的已修课程与教学计划要求全部课程的筛选
@@ -418,6 +505,7 @@ public class StudentServiceImpl implements StudentService {
             handleStuCourCompare(mustCourses, doneCourses0, doneCourses1, doneCourses2, undoCourse);
         }
     }
+
 
     /**
      * @Description: 对学生已修课程与教学计划课程进行比较

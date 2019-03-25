@@ -3,7 +3,8 @@
 <mapper namespace="com.scoreanalysis.daoExtend.StuInfoExtendMapper">
 
     <!-- 根据学生id获取学生信息扩展对象的基本信息（除未修课程） -->
-    <select id="getStuBasicInfoBySid" parameterType="java.lang.String" resultType="com.scoreanalysis.pojo.StuInfoExtend">
+    <select id="getStuBasicInfoBySid" parameterType="java.lang.String"
+            resultType="com.scoreanalysis.pojo.StuInfoExtend">
         SELECT
         sid,
         sname,
@@ -18,7 +19,8 @@
     </select>
 
     <!-- 根据学生班级获取全部学生信息扩展对象的基本信息（除未修课程） -->
-    <select id="getAllStusBasicInfoByClsId" parameterType="java.lang.String" resultType="com.scoreanalysis.pojo.StuInfoExtend">
+    <select id="getAllStusBasicInfoByClsId" parameterType="java.lang.String"
+            resultType="com.scoreanalysis.pojo.StuInfoExtend">
         SELECT
         sid,
         sname,
@@ -33,7 +35,8 @@
     </select>
 
     <!-- 根据专业获取全部学生信息扩展对象的基本信息（除未修课程） -->
-    <select id="getAllStusBasicInfoByMajor" parameterType="java.lang.String" resultType="com.scoreanalysis.pojo.StuInfoExtend">
+    <select id="getAllStusBasicInfoByMajor" parameterType="java.lang.String"
+            resultType="com.scoreanalysis.pojo.StuInfoExtend">
         SELECT
         sid,
         sname,
@@ -45,5 +48,39 @@
         INNER JOIN major C ON B.cls_major = C.mid
         WHERE
         C.mid = #{majorId}
+    </select>
+
+    <!-- 分页相关 -->
+
+    <!-- 根据学生班级获取全部学生信息扩展对象的基本信息（除未修课程）[带分页] -->
+    <select id="getAllStusBasicInfoByClsIdWithPage" resultType="com.scoreanalysis.pojo.StuInfoExtend">
+        SELECT
+        sid,
+        sname,
+        cls_name AS className,
+        mname AS majorName
+        FROM
+        student A
+        INNER JOIN stu_class B ON A.sclass = B.clsid
+        INNER JOIN major C ON B.cls_major = C.mid
+        WHERE
+        A.sclass = #{clsid}
+        LIMIT #{startIndex},#{pageSize}
+    </select>
+
+    <!-- 根据专业获取全部学生信息扩展对象的基本信息（除未修课程）[带分页] -->
+    <select id="getAllStusBasicInfoByMajorWithPage" resultType="com.scoreanalysis.pojo.StuInfoExtend">
+        SELECT
+        sid,
+        sname,
+        cls_name AS className,
+        mname AS majorName
+        FROM
+        student A
+        INNER JOIN stu_class B ON A.sclass = B.clsid
+        INNER JOIN major C ON B.cls_major = C.mid
+        WHERE
+        C.mid = #{majorId}
+        LIMIT #{startIndex},#{pageSize}
     </select>
 </mapper>
