@@ -14,19 +14,17 @@
 </head>
 
 <body class="layui-anim layui-anim-up">
-<div class="x-nav">
+<div>
         <span class="layui-breadcrumb">
             <a href="">首页</a>
             <a href="">演示</a>
             <a>
                 <cite>导航元素</cite></a>
         </span>
-    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
-       href="javascript:location.replace(location.href);" title="刷新">
-        <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+    <a class="layui-btn layui-btn-small" style="float: right;"
+       href="javascript:location.replace(location.href);" title="刷新">刷新</a>
 </div>
-<div class="x-body">
-
+<div>
     <div class="demoTable">
         搜索ID：
         <div class="layui-inline">
@@ -53,8 +51,22 @@
         //展示已知数据
         table.render({
             elem: '#students',
-            // toolbar: true,
-            url: 'student/getStuInfoByMajor?majorId=02', //数据接口(不需要带项目名)
+            url: 'student/getStuInfoByStuClsWithPage?clsId=021101', //数据接口(不需要带项目名)
+            parseData: function (res) { //res 即为原始返回的数据
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.msg, //解析提示文本
+                    "count": res.data.totalRecord, //解析数据长度
+                    "data": res.data.list //解析数据列表
+                };
+            },
+            response: {
+                statusCode: 205 //规定成功的状态码，默认：0
+            },
+            request:{
+                pageName: 'pageNum' //页码的参数名称，默认：page
+                ,limitName: 'pageSize' //每页数据量的参数名，默认：limit
+            },
             cols: [
                 [ //标题栏
                     {
@@ -62,49 +74,43 @@
                     }, {
                     field: 'sid',
                     title: '学号',
-                    width: 150,
+                    width: 180,
                     sort: true
                 }, {
                     field: 'sname',
                     title: '姓名',
-                    width: 150
+                    width: 180
                 }, {
                     field: 'className',
                     title: '班级',
-                    width: 150
+                    width: 180
                 }, {
                     field: 'majorName',
                     title: '专业',
-                    width: 150
+                    width: 180
                 }, {
                     field: 'undoCourse', //课程id
                     title: '未修课程号',
-                    templet: '<div>{{d.undoCourse.cid}}</div>',
-                    minWidth: 200
-
+                    templet: '<div>{{d.undoCourse[0].cid}}</div>',
+                    minWidth: 80
                 }, {
-                    field: 'undoCourse', //课程名称
+                    field: 'cname', //课程名称
                     title: '课程名称',
-                    templet: '<div>{{d.undoCourse.cname}}</div>',
-                    minWidth: 160
+                    templet: '<div>{{d.undoCourse[0].cname}}</div>',
+                    minWidth: 80
                 }, {
                     field: 'undoCourse', //课程学分
                     title: '课程学分',
-                    templet: '<div>{{d.undoCourse.credit}}</div>',
+                    templet: '<div>{{d.undoCourse[0].credit}}</div>',
                     width: 100
                 }, {
                     field: 'undoCourse', //必修最新分数/选修已得学分
                     title: '必修最新分数/选修已得学分',
-                    templet: '<div>{{d.undoCourse.score}}</div>',
-                    width: 100
-                },  {
-                    field: 'undoCourse', //课程属性
-                    title: '必修最新分数/选修已得学分',
-                    templet: '<div>{{d.undoCourse.kcsx}}</div>',
-                    width: 100
+                    templet: '<div>{{d.undoCourse[0].score}}</div>',
+                    minWidth: 80
                 }, {
                     fixed: 'right',
-                    width: 50,
+                    width: 150,
                     align: 'center',
                     toolbar: '#barDemo'
                 } //这里的toolbar值是模板元素的选择器
@@ -114,7 +120,7 @@
             id: 'stuReload',
             even: true,
             page: true, //是否显示分页
-            limits: [5, 7, 10],
+            limits: [5, 10, 15],
             limit: 5 //每页默认显示的数量
         });
 
@@ -123,7 +129,7 @@
         //         var reload = $('#reload');
         //         //执行重载
         //         table.reload('stuReload', {
-        //             url: '#',
+        //             url: 'getStuInfoBySid',
         //             method: 'get',
         //             page: {
         //                 curr: 1 //重新从第 1 页开始
@@ -140,7 +146,6 @@
             active = {
                 reload: function () {
                     var demoReload = $('#demoReload');
-
                     //执行重载
                     table.reload('testReload', {
                         page: {
