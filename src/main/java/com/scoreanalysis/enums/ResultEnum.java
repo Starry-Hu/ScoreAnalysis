@@ -65,7 +65,13 @@ public enum  ResultEnum {
     MAJOR_SEARCH_SUCCESS(205,"专业查找成功"),
     MAJOR_INFO_NOT_FULL(211,"信息填写不完全"),
 
-
+    // 班级相关
+    CLASS_EXIST(201,"班级已存在"),
+    CLASS_ADD_SUCCESS(202,"班级添加成功"),
+    CLASS_DELETE_SUCCESS(203,"班级删除成功"),
+    CLASS_UPDATE_SUCCESS(204,"班级更新成功"),
+    CLASS_SEARCH_SUCCESS(205,"班级查找成功"),
+    CLASS_INFO_NOT_FULL(211,"信息填写不完全"),
     ;
     private Integer code;
     private String msg;
