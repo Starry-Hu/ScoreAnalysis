@@ -124,6 +124,7 @@ public class StudentController extends BaseController {
 
     // ---分页相关---
 
+
     /**
      * @Description: 根据学生班级获取全部学生的修课情况（返回为学生信息扩展对象数组）【带分页】
      * @Param: [clsId, pageNum, pageSize]
@@ -133,9 +134,9 @@ public class StudentController extends BaseController {
      */
     @GetMapping("/getStuInfoByStuClsWithPage")
     public BaseResponse getStuInfoByStuClsWithPage(String clsId, Integer pageNum, Integer pageSize) throws Exception {
-        // 判断班级id是否填写
+        // 判断班级id是否填写,若未填写则赋默认值
         if (clsId == null || clsId.trim().equals("")) {
-            return ajaxFail(ResultEnum.STUDENT_INFO_NOT_FULL);
+            clsId = "021101";
         }
         // 处理分页的默认情况
         if (pageNum == null || pageSize == null) {
@@ -155,9 +156,9 @@ public class StudentController extends BaseController {
      */
     @GetMapping("/getStuInfoByMajorWithPage")
     public BaseResponse getStuInfoByMajorWithPage(String majorId, Integer pageNum, Integer pageSize) throws Exception {
-        // 判断学号是否填写
+        // 判断专业是否填写
         if (majorId == null || majorId.trim().equals("")) {
-            return ajaxFail(ResultEnum.STUDENT_INFO_NOT_FULL);
+            majorId = "02";
         }
         // 处理分页默认情况
         if (pageNum == null || pageSize == null) {

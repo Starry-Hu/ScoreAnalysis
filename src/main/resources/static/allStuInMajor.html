@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="css/font.css">
     <link rel="stylesheet" href="lib/layui/css/layui.css">
-    <title>班级学生总况</title>
+    <title>专业学生总况</title>
     <style>
         .layui-form-label{
             width: 60px;
@@ -23,9 +23,9 @@
     <div class="demoTable">
         <form id="editForm" class="layui-form">
             <div class="layui-form-item layui-inline">
-                <label class="layui-form-label must">所选班级</label>
+                <label class="layui-form-label must">所选专业</label>
                 <div class="layui-input-inline">
-                    <select name="clsId" id="clsId">
+                    <select name="majorId" id="majorId">
                         <option value=""></option>
                     </select>
                 </div>
@@ -57,14 +57,14 @@
             // 加载可选班级
             jQuery.ajax({
                 type: "get",
-                url: "/ScoreAnalysis/class/getAllClasses", // 需要带上项目名(只有上传文件的时候不需要)
+                url: "/ScoreAnalysis/major/getAllMajors", // 需要带上项目名(只有上传文件的时候不需要)
                 dataType: "json",
                 async: false,
                 success: function (response) {
                     for (let i = 0; i < response.data.length; i++) {
                         const element = response.data[i];
-                        var $option = `<option value='${element.clsid}'> ${element.clsName}</option>`;
-                        $('#clsId').append($option);
+                        var $option = `<option value='${element.mid}'> ${element.mname}</option>`;
+                        $('#majorId').append($option);
                     }
                     form.render();
                 }
@@ -77,7 +77,7 @@
             elem: '#students',
             // toolbar: true,
             toolbar: 'default',
-            url: 'student/getStuInfoByStuClsWithPage', //数据接口(不需要带项目名)
+            url: 'student/getStuInfoByMajorWithPage', //数据接口(不需要带项目名)
             parseData: function (res) { //res 即为原始返回的数据
                 var stuInfo = new Array();
                 for (let i = 0; i < res.data.list.length; i++) {
@@ -160,14 +160,13 @@
 
         var active = {
             reload: function() {
-                var clsId = $('#clsId').val();
                 //执行重载
                 table.reload('dataTable', {
                     page: {
                         curr: 1 //重新从第 1 页开始
                     },
                     where: { //类似于 data
-                        clsId: $('#clsId').val()
+                        majorId: $('#majorId').val()
                     }
                 });
             }
