@@ -9,11 +9,15 @@
     <link rel="stylesheet" href="lib/layui/css/layui.css">
     <title>专业学生总况</title>
     <style>
-        .layui-form-label{
+        .layui-form-label {
             width: 60px;
         }
+
         form {
             width: 600px;
+        }
+        table{
+            border-collapse: initial;
         }
     </style>
 </head>
@@ -37,11 +41,15 @@
     </div>
 
 
-    <table id="students" lay-filter="test"></table>
+    <table id="students" lay-filter="students"></table>
 </div>
 
 <script type="text/html" id="barDemo">
-    <a class="layui-btn layui-btn-sm" lay-event="inform">通知</a>
+    {{#  if(d.undoCourseOneCname == "已修满"){ }}
+    <a class="layui-btn layui-btn-sm layui-btn-disabled">已修满</a>
+    {{# }else { }}
+    <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="inform">通知</a>
+    {{#  } }}
 </script>
 
 <script type="text/javascript" src="js/jquery-3.3.1.js"></script>
@@ -54,12 +62,11 @@
         var form = layui.form;
 
         jQuery(function () {
-            // 加载可选班级
+            // 加载可选专业
             jQuery.ajax({
                 type: "get",
                 url: "/ScoreAnalysis/major/getAllMajors", // 需要带上项目名(只有上传文件的时候不需要)
                 dataType: "json",
-                async: false,
                 success: function (response) {
                     for (let i = 0; i < response.data.length; i++) {
                         const element = response.data[i];
@@ -81,16 +88,32 @@
             parseData: function (res) { //res 即为原始返回的数据
                 var stuInfo = new Array();
                 for (let i = 0; i < res.data.list.length; i++) {
-                    for (let j = 0; j < res.data.list[i].undoCourse.length; j++) {
+                    // 获取必修课程数组
+                    var undoCourseList = res.data.list[i].undoCourse;
+
+                    // 如果没有未修课程，则显示已修满
+                    if (undoCourseList.length == 0) {
                         // 根据长度自己拼接成json字符串
                         var jsonString = `{ "sid": "${res.data.list[i].sid}", "sname": "${res.data.list[i].sname}", "className": "${res.data.list[i].className}",
-                        "majorName" : "${res.data.list[i].majorName}", "undoCourseOneCid": "${res.data.list[i].undoCourse[j].cid}",
-                        "undoCourseOneCname": "${res.data.list[i].undoCourse[j].cname}", "undoCourseOneCredit": ${res.data.list[i].undoCourse[j].credit},
-                        "undoCourseOneScore": ${res.data.list[i].undoCourse[j].score} }`;
+                        "majorName" : "${res.data.list[i].majorName}", "undoCourseOneCid": "已修满",
+                        "undoCourseOneCname": "已修满", "undoCourseOneCredit": "已修满","undoCourseOneScore": "已修满" }`;
                         // 将上述字符串转成json
                         var obj = JSON.parse(jsonString);
                         // 添加到数组中
                         stuInfo.push(obj);
+                    } else {
+                        // 存在未修课程 则动态拼接
+                        for (let j = 0; j < res.data.list[i].undoCourse.length; j++) {
+                            // 根据长度自己拼接成json字符串
+                            var jsonString = `{ "sid": "${res.data.list[i].sid}", "sname": "${res.data.list[i].sname}", "className": "${res.data.list[i].className}",
+                        "majorName" : "${res.data.list[i].majorName}", "undoCourseOneCid": "${res.data.list[i].undoCourse[j].cid}",
+                        "undoCourseOneCname": "${res.data.list[i].undoCourse[j].cname}", "undoCourseOneCredit": ${res.data.list[i].undoCourse[j].credit},
+                        "undoCourseOneScore": ${res.data.list[i].undoCourse[j].score} }`;
+                            // 将上述字符串转成json
+                            var obj = JSON.parse(jsonString);
+                            // 添加到数组中
+                            stuInfo.push(obj);
+                        }
                     }
                 }
                 return {
@@ -110,6 +133,10 @@
             },
             cols: [
                 [{
+                    field: 'sid',
+                    title: '学号',
+                    width: 180
+                },{
                     field: 'sname',
                     title: '姓名',
                     width: 180
@@ -145,12 +172,10 @@
                 } //这里的toolbar值是模板元素的选择器
                 ]
             ],
-            skin: 'line', //表格风格
-            id: 'stuReload',
-            even: true,
+            // even: true,
             page: true, //是否显示分页
-            limits: [5, 10, 15],
-            limit: 5, //每页默认显示的数量
+            limits: [10,30,60,90,300],
+            limit: 10, //每页默认显示的数量
             done: function (res, curr, count) {
                 alarmTableRowSpan("sid", 1);   // 在此处合并单元格
                 alarmTableRowSpan("sname", 1);
@@ -158,8 +183,9 @@
             id: "dataTable"
         });
 
+        // 数据重载（查询）
         var active = {
-            reload: function() {
+            reload: function () {
                 //执行重载
                 table.reload('dataTable', {
                     page: {
@@ -171,20 +197,36 @@
                 });
             }
         };
-
-        // table.reload('dataTable', {
-        //     where: { //设定异步数据接口的额外参数，任意设
-        //         "sid": $('#clsId').val()
-        //     }
-        //     ,page: {
-        //         curr: 1 //重新从第 1 页开始
-        //     }
-        // });
-
+        // 数据重载之后的刷新..?
         $('#search').on('click', function () {
             var type = $(this).data('type');
             active[type] ? active[type].call(this) : '';
         });
+
+        // 工具条事件
+        // table.on('tool(students)', function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+        //     var data = obj.data; //获得当前行数据
+        //     var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+        //     var tr = obj.tr; //获得当前行 tr 的DOM对象
+        //
+        //     if(layEvent === 'detail'){ //查看
+        //         //do somehing
+        //     } else if(layEvent === 'del'){ //删除
+        //         layer.confirm('真的删除行么', function(index){
+        //             obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+        //             layer.close(index);
+        //             //向服务端发送删除指令
+        //         });
+        //     } else if(layEvent === 'edit'){ //编辑
+        //         //do something
+        //
+        //         //同步更新缓存对应的值
+        //         obj.update({
+        //             username: '123'
+        //             ,title: 'xxx'
+        //         });
+        //     }
+        // });
     })
 
 </script>

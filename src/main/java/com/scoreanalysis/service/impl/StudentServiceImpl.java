@@ -1,7 +1,5 @@
 package com.scoreanalysis.service.impl;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.scoreanalysis.bean.*;
 import com.scoreanalysis.dao.MajorMapper;
 import com.scoreanalysis.dao.StuClassMapper;
@@ -398,7 +396,72 @@ public class StudentServiceImpl implements StudentService {
 
         return stuInfoExtendList;
     }
-// 分页相关
+
+    /**
+     * @Description: 获取全部学生的修课情况
+     * @Param: []
+     * @return: java.util.List<com.scoreanalysis.pojo.StuInfoExtend>
+     * @Author: StarryHu
+     * @Date: 2019/3/28
+     */
+    public List<StuInfoExtend> getAllStuInfo() throws Exception {
+        // 获取全部学生扩展信息数组
+        List<StuInfoExtend> stuInfoExtendList = stuInfoExtendMapper.getAllStusBasicInfo();
+        if (stuInfoExtendList.size() == 0) {
+            throw new SAException(ExceptionEnum.STUDENT__NO_EXIST);
+        }
+
+        // 处理全部学生信息
+        handleAllStuInfo(stuInfoExtendList);
+        return stuInfoExtendList;
+    }
+
+    /**
+     *  ---分页相关---
+     */
+
+    /**
+     * @Description: 获取某学生的修课情况（返回pagebean对象）分页默认为1
+     * @Param: [sid, pageNum, pageSize]
+     * @return: com.scoreanalysis.util.PageBean<com.scoreanalysis.pojo.StuInfoExtend>
+     * @Author: StarryHu
+     * @Date: 2019/3/28
+     */
+    public PageBean<StuInfoExtend> getStuInfoBySid(String sid, int pageNum, int pageSize) throws Exception {
+        // 获取学生对象 -> 班级 -> 专业
+        Student student = studentMapper.selectByPrimaryKey(sid);
+        if (student == null) {
+            throw new SAException(ExceptionEnum.STUDENT__NO_EXIST);
+        }
+        StuClass stuClass = stuClassMapper.selectByPrimaryKey(student.getSclass());
+        String smajor = stuClass.getClsMajor();
+        // 根据专业号获取教学计划id
+        String planId = majorMapper.selectByPrimaryKey(smajor).getMplan();
+        // 根据教学计划id获取所需要修的全部课程 (使用扩展CourseExtendMapper查找)
+        List<Course> mustCourses = courseExtendMapper.getMustCoursInPlan(planId);
+
+        // 根据学生id获取对应的教学计划中-已修的全部必修课程、限选课程、公选课程(0/1/2)
+        List<StuCourseExtend> doneCourses0 = courseExtendMapper.getDoneCoursBySid(sid, 0, planId);
+        List<StuCourseExtend> doneCourses1 = courseExtendMapper.getDoneCoursBySid(sid, 1, planId);
+        List<StuCourseExtend> doneCourses2 = courseExtendMapper.getDoneCoursBySid(sid, 2, planId);
+
+        // 建立未修够课程数组
+        List<StuCourseExtend> undoCourse = new ArrayList<>();
+        // 通过学生id直接获取到学生信息扩展对象（已填充基本信息）
+        StuInfoExtend stuInfoExtend = stuInfoExtendMapper.getStuBasicInfoBySid(sid);
+        stuInfoExtend.setUndoCourse(undoCourse);
+
+        // 对学生已修课程与教学计划课程进行比较
+        handleStuCourCompare(mustCourses, doneCourses0, doneCourses1, doneCourses2, undoCourse);
+
+        // 建立pageBean对象
+        PageBean<StuInfoExtend> pBean = new PageBean<>(1, 1, 1);
+        List<StuInfoExtend> stuInfoExtendList = new ArrayList<>();
+        stuInfoExtendList.add(stuInfoExtend);
+        pBean.setList(stuInfoExtendList);
+
+        return pBean;
+    }
 
     /**
      * @Description: 根据班级获取该班级全部学生的相关修课信息(带分页)
@@ -482,7 +545,38 @@ public class StudentServiceImpl implements StudentService {
     }
 
     /**
-     * @Description: 处理多学生（数组）的已修课程与教学计划要求全部课程的筛选
+     * @Description: 获取全部学生的修课情况
+     * @Param: []
+     * @return: java.util.List<com.scoreanalysis.pojo.StuInfoExtend>
+     * @Author: StarryHu
+     * @Date: 2019/3/28
+     */
+    public PageBean<StuInfoExtend> getAllStuInfoWithPage(int pageNum, int pageSize) throws Exception {
+        // 获取全部学生扩展信息数组
+        List<StuInfoExtend> allDatas = stuInfoExtendMapper.getAllStusBasicInfo();
+
+        // ---进行分页处理---
+        // 获取全部数量  同时建立pagebean对象
+        int totalRecord = allDatas.size();
+        if (allDatas.size() == 0) {
+            throw new SAException(ExceptionEnum.STUDENT__NO_EXIST);
+        }
+        PageBean<StuInfoExtend> pBean = new PageBean<>(pageNum, pageSize, totalRecord);
+        // 获取pagebean对象的startIndex
+        int startIndex = pBean.getStartIndex();
+
+        // 查找对应的数据
+        List<StuInfoExtend> realDatas = stuInfoExtendMapper.getAllStusBasicInfoWithPage(startIndex, pageSize);
+
+        // 处理分页后的全部学生信息
+        handleAllStuInfo(realDatas);
+        // 设置list对应的数据对象
+        pBean.setList(realDatas);
+        return pBean;
+    }
+
+    /**
+     * @Description: 处理多学生（数组）[主要针对根据班级、专业查找情况(同一教学计划)] 的已修课程与教学计划要求全部课程的筛选
      * @Param: [stuInfoExtendList, planId, mustCourses]
      * 参数分别为：学生信息扩展对象数组，所属教学计划id，教学计划要求全部课程数组
      * @return: void
@@ -603,6 +697,38 @@ public class StudentServiceImpl implements StudentService {
             // 加入未修课程数组中
             undoCourse.add(temp);
             System.out.println("未修够" + doneOne.getCname() + "---" + doneOne.getCredit());
+        }
+    }
+
+
+    /**
+     * @Description: 处理全部学生信息扩展对象（注意每次动态获取planId，不同于上述子方法的公用一个planId）
+     * @Param: [stuInfoExtendList] 所需要处理的全部学生信息扩展对象数组
+     * @return: void
+     * @Author: StarryHu
+     * @Date: 2019/3/28
+     */
+    private void handleAllStuInfo(List<StuInfoExtend> stuInfoExtendList) {
+        for (StuInfoExtend stuInfoExtend : stuInfoExtendList) {
+            // 获取学号
+            String sid = stuInfoExtend.getSid();
+            // 获取学生的班级信息 -> 专业信息 -> 教学计划
+            String sclass = studentMapper.selectByPrimaryKey(sid).getSclass();
+            String smajor = stuClassMapper.selectByPrimaryKey(sclass).getClsMajor();
+            String planId = majorMapper.selectByPrimaryKey(smajor).getMplan();
+            // 根据教学计划id获取所需要修的全部课程 (使用扩展CourseExtendMapper查找)
+            List<Course> mustCourses = courseExtendMapper.getMustCoursInPlan(planId);
+
+            // 根据学生id获取对应的教学计划中-已修的全部必修课程、限选课程、公选课程(0/1/2)
+            List<StuCourseExtend> doneCourses0 = courseExtendMapper.getDoneCoursBySid(sid, 0, planId);
+            List<StuCourseExtend> doneCourses1 = courseExtendMapper.getDoneCoursBySid(sid, 1, planId);
+            List<StuCourseExtend> doneCourses2 = courseExtendMapper.getDoneCoursBySid(sid, 2, planId);
+            // 建立未修够课程数组
+            List<StuCourseExtend> undoCourse = new ArrayList<>();
+            stuInfoExtend.setUndoCourse(undoCourse);
+
+            // 对学生已修课程与教学计划课程进行比较
+            handleStuCourCompare(mustCourses, doneCourses0, doneCourses1, doneCourses2, undoCourse);
         }
     }
 }

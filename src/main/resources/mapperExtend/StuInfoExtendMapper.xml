@@ -50,6 +50,19 @@
         C.mid = #{majorId}
     </select>
 
+    <!-- 获取全部学生信息扩展对象的基本信息（除未修课程） -->
+    <select id="getAllStusBasicInfo" resultType="com.scoreanalysis.pojo.StuInfoExtend">
+        SELECT
+        sid,
+        sname,
+        cls_name AS className,
+        mname AS majorName
+        FROM
+        student A
+        INNER JOIN stu_class B ON A.sclass = B.clsid
+        INNER JOIN major C ON B.cls_major = C.mid
+    </select>
+
     <!-- 分页相关 -->
 
     <!-- 根据学生班级获取全部学生信息扩展对象的基本信息（除未修课程）[带分页] -->
@@ -83,4 +96,19 @@
         C.mid = #{majorId}
         LIMIT #{startIndex},#{pageSize}
     </select>
+
+    <!-- 获取全部学生信息扩展对象的基本信息（除未修课程）[带分页] -->
+    <select id="getAllStusBasicInfoWithPage" resultType="com.scoreanalysis.pojo.StuInfoExtend">
+        SELECT
+        sid,
+        sname,
+        cls_name AS className,
+        mname AS majorName
+        FROM
+        student A
+        INNER JOIN stu_class B ON A.sclass = B.clsid
+        INNER JOIN major C ON B.cls_major = C.mid
+        LIMIT #{startIndex},#{pageSize}
+    </select>
+
 </mapper>
