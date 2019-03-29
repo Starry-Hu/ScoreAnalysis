@@ -16,7 +16,8 @@
         form {
             width: 600px;
         }
-        table{
+
+        table {
             border-collapse: initial;
         }
     </style>
@@ -24,7 +25,7 @@
 
 <body class="layui-anim layui-anim-up">
 <div>
-    <div class="demoTable">
+    <div>
         <form id="editForm" class="layui-form">
             <div class="layui-form-item layui-inline">
                 <label class="layui-form-label must">所选专业</label>
@@ -57,9 +58,17 @@
 <script type="text/javascript" src="js/layuiRowSpan.js"></script>
 
 <script>
-    layui.use(['table', 'form'], function () {
-        var table = layui.table;
-        var form = layui.form;
+    // 自定义模块
+    layui.config({
+        base: 'module/'
+    }).extend({
+        tableMerge: 'tableMerge'
+    });
+
+    layui.use(['table', 'tableMerge', 'form'], function () {
+        var table = layui.table,
+            tableMerge = layui.tableMerge,
+            form = layui.form;
 
         jQuery(function () {
             // 加载可选专业
@@ -82,10 +91,15 @@
         //展示已知数据
         table.render({
             elem: '#students',
-            // toolbar: true,
             toolbar: 'default',
             url: 'student/getStuInfoByMajorWithPage', //数据接口(不需要带项目名)
             parseData: function (res) { //res 即为原始返回的数据
+                // 如果获取错误，则返回错误信息
+                if (res.code != 205){
+                    layer.msg(res.msg);
+                    return;
+                }
+
                 var stuInfo = new Array();
                 for (let i = 0; i < res.data.list.length; i++) {
                     // 获取必修课程数组
@@ -94,7 +108,7 @@
                     // 如果没有未修课程，则显示已修满
                     if (undoCourseList.length == 0) {
                         // 根据长度自己拼接成json字符串
-                        var jsonString = `{ "sid": "${res.data.list[i].sid}", "sname": "${res.data.list[i].sname}", "className": "${res.data.list[i].className}",
+                        var jsonString = `{"number": "${i + 1}", "sid": "${res.data.list[i].sid}", "sname": "${res.data.list[i].sname}", "className": "${res.data.list[i].className}",
                         "majorName" : "${res.data.list[i].majorName}", "undoCourseOneCid": "已修满",
                         "undoCourseOneCname": "已修满", "undoCourseOneCredit": "已修满","undoCourseOneScore": "已修满" }`;
                         // 将上述字符串转成json
@@ -105,7 +119,7 @@
                         // 存在未修课程 则动态拼接
                         for (let j = 0; j < res.data.list[i].undoCourse.length; j++) {
                             // 根据长度自己拼接成json字符串
-                            var jsonString = `{ "sid": "${res.data.list[i].sid}", "sname": "${res.data.list[i].sname}", "className": "${res.data.list[i].className}",
+                            var jsonString = `{"number": "${i + 1}", "sid": "${res.data.list[i].sid}", "sname": "${res.data.list[i].sname}", "className": "${res.data.list[i].className}",
                         "majorName" : "${res.data.list[i].majorName}", "undoCourseOneCid": "${res.data.list[i].undoCourse[j].cid}",
                         "undoCourseOneCname": "${res.data.list[i].undoCourse[j].cname}", "undoCourseOneCredit": ${res.data.list[i].undoCourse[j].credit},
                         "undoCourseOneScore": ${res.data.list[i].undoCourse[j].score} }`;
@@ -133,40 +147,49 @@
             },
             cols: [
                 [{
+                    field: 'number',
+                    title: '',
+                    width: 30,
+                    merge: true,
+                }, {
                     field: 'sid',
                     title: '学号',
-                    width: 180
-                },{
+                    minWidth: 130,
+                    merge: true,
+                }, {
                     field: 'sname',
                     title: '姓名',
-                    width: 180
+                    minWidth: 50,
+                    merge: true,
                 }, {
                     field: 'className',
                     title: '班级',
-                    width: 180
+                    minWidth: 50,
+                    merge: 'sid',
                 }, {
                     field: 'majorName',
                     title: '专业',
-                    width: 180
+                    width: 70,
+                    merge: 'sid',
                 }, {
                     field: 'undoCourseOneCid',
                     title: '未修课程号',
-                    minWidth: 80
+                    width: 120
                 }, {
                     field: 'undoCourseOneCname',
                     title: '课程名称',
-                    minWidth: 80
+                    minWidth: 100
                 }, {
                     field: 'undoCourseOneCredit',
                     title: '课程学分',
                     width: 100
                 }, {
                     field: 'undoCourseOneScore',
-                    title: '必修成绩分数/选修已得学分',
-                    minWidth: 80
+                    title: '必修成绩/选修已得学分',
+                    minWidth: 60
                 }, {
                     fixed: 'right',
-                    width: 150,
+                    width: 100,
                     align: 'center',
                     toolbar: '#barDemo'
                 } //这里的toolbar值是模板元素的选择器
@@ -174,11 +197,10 @@
             ],
             // even: true,
             page: true, //是否显示分页
-            limits: [10,30,60,90,300],
+            limits: [10, 30, 60, 90, 300],
             limit: 10, //每页默认显示的数量
-            done: function (res, curr, count) {
-                alarmTableRowSpan("sid", 1);   // 在此处合并单元格
-                alarmTableRowSpan("sname", 1);
+            done: function () {
+                tableMerge.render(this)
             },
             id: "dataTable"
         });
@@ -197,7 +219,7 @@
                 });
             }
         };
-        // 数据重载之后的刷新..?
+        // 数据重载之后的刷新重载表格
         $('#search').on('click', function () {
             var type = $(this).data('type');
             active[type] ? active[type].call(this) : '';

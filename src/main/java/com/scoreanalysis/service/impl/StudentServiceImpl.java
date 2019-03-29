@@ -1,10 +1,7 @@
 package com.scoreanalysis.service.impl;
 
 import com.scoreanalysis.bean.*;
-import com.scoreanalysis.dao.MajorMapper;
-import com.scoreanalysis.dao.StuClassMapper;
-import com.scoreanalysis.dao.StuCourseMapper;
-import com.scoreanalysis.dao.StudentMapper;
+import com.scoreanalysis.dao.*;
 import com.scoreanalysis.daoExtend.CourseExtendMapper;
 import com.scoreanalysis.daoExtend.StuInfoExtendMapper;
 import com.scoreanalysis.enums.ExceptionEnum;
@@ -47,6 +44,8 @@ public class StudentServiceImpl implements StudentService {
     private CourseExtendMapper courseExtendMapper;
     @Autowired
     private StuInfoExtendMapper stuInfoExtendMapper;
+    @Autowired
+    private CourseMapper courseMapper;
 
     /**
      * @Description: 上传学生成绩信息相关，将数据导入student表，stuClass表以及major表
@@ -256,6 +255,7 @@ public class StudentServiceImpl implements StudentService {
         }
     }
 
+
     /**
      * @Description: 删除全部学生信息及相关班级专业信息(即清空学生表, 班级表和专业表)
      * @Param: []
@@ -306,6 +306,7 @@ public class StudentServiceImpl implements StudentService {
         }
     }
 
+    // --------------------------------------------------获取相关--------------------------------------------------------
     /**
      * @Description: 根据学号获取该学生的相关修课信息
      * @Param: [sid]
@@ -416,9 +417,7 @@ public class StudentServiceImpl implements StudentService {
         return stuInfoExtendList;
     }
 
-    /**
-     *  ---分页相关---
-     */
+    // ---------------------------------------------------分页相关-------------------------------------------------------
 
     /**
      * @Description: 获取某学生的修课情况（返回pagebean对象）分页默认为1
@@ -545,7 +544,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     /**
-     * @Description: 获取全部学生的修课情况
+     * @Description: 获取全部学生的修课情况[带分页]
      * @Param: []
      * @return: java.util.List<com.scoreanalysis.pojo.StuInfoExtend>
      * @Author: StarryHu
@@ -575,6 +574,161 @@ public class StudentServiceImpl implements StudentService {
         return pBean;
     }
 
+
+    // --------------------------------------------------英语相关--------------------------------------------------------
+
+    /**
+    * @Description: 根据学号查找某个学生的大英4情况(返回pageBean对象，方便统一分页)赋值1
+    * @Param: [sid, pageNum, pageSize]
+    * @return: com.scoreanalysis.util.PageBean<com.scoreanalysis.pojo.StuInfoExtend>
+    * @Author: StarryHu
+    * @Date: 2019/3/29
+    */
+    public PageBean<StuInfoExtend> getStuInfoBySidInEng4(String sid) throws Exception{
+        // 获取学生对象 -> 班级 -> 专业
+        Student student = studentMapper.selectByPrimaryKey(sid);
+        if (student == null) {
+            throw new SAException(ExceptionEnum.STUDENT__NO_EXIST);
+        }
+        StuClass stuClass = stuClassMapper.selectByPrimaryKey(student.getSclass());
+        String smajor = stuClass.getClsMajor();
+        // 根据专业号获取教学计划id
+        String planId = majorMapper.selectByPrimaryKey(smajor).getMplan();
+
+        // 通过学生id直接获取到学生信息扩展对象（已填充基本信息）
+        // 拿到数据库里的全部数据 有多少拿多少（总数）
+        StuInfoExtend stuInfoExtend = stuInfoExtendMapper.getStuBasicInfoBySid(sid);
+
+
+        // ---进行分页处理---
+        // 获取全部数量  同时建立pagebean对象
+        PageBean<StuInfoExtend> pBean = new PageBean<>(1,1,1);
+        // 获取pagebean对象的startIndex
+        int startIndex = pBean.getStartIndex();
+
+        // 将一个学生对象放入数组中，方便分页使用
+        List<StuInfoExtend> stuInfoExtendList = new ArrayList<>();
+        stuInfoExtendList.add(stuInfoExtend);
+
+        // 处理学生数组的大英4情况（分页的部分数据）
+        handleStuInfoInEng4(stuInfoExtendList,"80710004");
+        // 设置list对应的数据对象
+        pBean.setList(stuInfoExtendList);
+
+        return pBean;
+    }
+
+    /**
+    * @Description: 根据班级获取全部学生的大英4情况(带分页)
+    * @Param: [clsId, pageNum, pageSize]
+    * @return: com.scoreanalysis.util.PageBean<com.scoreanalysis.pojo.StuInfoExtend>
+    * @Author: StarryHu
+    * @Date: 2019/3/29
+    */
+    public PageBean<StuInfoExtend> getStuInfoByClsIdWithPageInEng4(String clsId, int pageNum, int pageSize) throws Exception{
+        // 根据班级号获取班级信息，同时获取专业号以此获取对应教学计划号
+        StuClass stuClass = stuClassMapper.selectByPrimaryKey(clsId);
+        if (stuClass == null) {
+            throw new SAException(ExceptionEnum.CLASS_NO_EXIST);
+        }
+        String clsMajor = stuClass.getClsMajor();
+        String planId = majorMapper.selectByPrimaryKey(clsMajor).getMplan();
+
+
+        // 通过学生id直接获取到学生信息扩展对象（已填充基本信息）
+        // 拿到数据库里的全部数据 有多少拿多少（总数）
+        List<StuInfoExtend> allDatas = stuInfoExtendMapper.getAllStusBasicInfoByClsId(clsId);
+
+
+        // ---进行分页处理---
+        // 获取全部数量  同时建立pagebean对象
+        int totalRecord = allDatas.size();
+        PageBean<StuInfoExtend> pBean = new PageBean<>(pageNum, pageSize, totalRecord);
+        // 获取pagebean对象的startIndex
+        int startIndex = pBean.getStartIndex();
+
+        // 查找对应的数据
+        List<StuInfoExtend> realDatas = stuInfoExtendMapper.getAllStusBasicInfoByClsIdWithPage(clsId, startIndex, pageSize);
+
+        // 处理学生数组的大英4情况（分页的部分数据）
+        handleStuInfoInEng4(realDatas,"80710004");
+        // 设置list对应的数据对象
+        pBean.setList(realDatas);
+
+        return pBean;
+    }
+
+    /**
+    * @Description: 根据专业获取全部学生的大英4信息（带分页）
+    * @Param: [majorId, pageNum, pageSize]
+    * @return: com.scoreanalysis.util.PageBean<com.scoreanalysis.pojo.StuInfoExtend>
+    * @Author: StarryHu
+    * @Date: 2019/3/29
+    */
+    public PageBean<StuInfoExtend> getStuInfoByMajorWithPageInEng4(String majorId, int pageNum, int pageSize) throws Exception{
+        // 根据专业号获取对应专业 -> 教学计划id
+        Major major = majorMapper.selectByPrimaryKey(majorId);
+        if (major == null) {
+            throw new SAException(ExceptionEnum.MAJOR_NO_EXIST);
+        }
+        String planId = major.getMplan();
+
+        // 通过学生id直接获取到学生信息扩展对象（已填充基本信息）
+        // 拿到数据库里的全部数据 有多少拿多少（总数）
+        List<StuInfoExtend> allDatas = stuInfoExtendMapper.getAllStusBasicInfoByMajor(majorId);
+
+
+        // ---进行分页处理---
+        // 获取全部数量  同时建立pagebean对象
+        int totalRecord = allDatas.size();
+        PageBean<StuInfoExtend> pBean = new PageBean<>(pageNum, pageSize, totalRecord);
+        // 获取pagebean对象的startIndex
+        int startIndex = pBean.getStartIndex();
+
+        // 查找对应的数据
+        List<StuInfoExtend> realDatas = stuInfoExtendMapper.getAllStusBasicInfoByMajorWithPage(majorId, startIndex, pageSize);
+
+        // 处理学生数组的大英4情况（分页的部分数据）
+        handleStuInfoInEng4(realDatas,"80710004");
+        // 设置list对应的数据对象
+        pBean.setList(realDatas);
+
+        return pBean;
+    }
+    /**
+    * @Description: 获取全部学生信息的大英4情况（带分页）
+    * @Param: [pageNum, pageSize]
+    * @return: void
+    * @Author: StarryHu
+    * @Date: 2019/3/29
+    */
+    public PageBean<StuInfoExtend> getAllStuInfoWithPageInEng4(int pageNum, int pageSize) throws Exception{
+        // 获取全部学生扩展信息数组
+        List<StuInfoExtend> allDatas = stuInfoExtendMapper.getAllStusBasicInfo();
+
+        // ---进行分页处理---
+        // 获取全部数量  同时建立pagebean对象
+        int totalRecord = allDatas.size();
+        if (allDatas.size() == 0) {
+            throw new SAException(ExceptionEnum.STUDENT__NO_EXIST);
+        }
+        PageBean<StuInfoExtend> pBean = new PageBean<>(pageNum, pageSize, totalRecord);
+        // 获取pagebean对象的startIndex
+        int startIndex = pBean.getStartIndex();
+
+        // 查找对应的数据
+        List<StuInfoExtend> realDatas = stuInfoExtendMapper.getAllStusBasicInfoWithPage(startIndex, pageSize);
+
+        // 处理学生数组的大英4情况（分页的部分数据）
+        handleStuInfoInEng4(realDatas,"80710004");
+        // 设置list对应的数据对象
+        pBean.setList(realDatas);
+
+        return pBean;
+    }
+
+
+    // --------------------------------------------------内部使用--------------------------------------------------------
     /**
      * @Description: 处理多学生（数组）[主要针对根据班级、专业查找情况(同一教学计划)] 的已修课程与教学计划要求全部课程的筛选
      * @Param: [stuInfoExtendList, planId, mustCourses]
@@ -729,6 +883,67 @@ public class StudentServiceImpl implements StudentService {
 
             // 对学生已修课程与教学计划课程进行比较
             handleStuCourCompare(mustCourses, doneCourses0, doneCourses1, doneCourses2, undoCourse);
+        }
+    }
+
+    /**
+    * @Description: 处理学生数组的大英4成绩情况
+    * @Param: [stuInfoExtendList, eng4Id]
+    * @return: void
+    * @Author: StarryHu
+    * @Date: 2019/3/29
+    */
+    private void handleStuInfoInEng4(List<StuInfoExtend> stuInfoExtendList,String eng4Id){
+        for (StuInfoExtend stuInfoExtend : stuInfoExtendList) {
+            // 获取学号
+            String sid = stuInfoExtend.getSid();
+            // 获取学生的班级信息 -> 专业信息 -> 教学计划
+            String sclass = studentMapper.selectByPrimaryKey(sid).getSclass();
+            String smajor = stuClassMapper.selectByPrimaryKey(sclass).getClsMajor();
+            String planId = majorMapper.selectByPrimaryKey(smajor).getMplan();
+
+            // 在教学计划中查找大英4是否有要求,如果未要求则抛出课程
+            CourseExample courseExample = new CourseExample();
+            courseExample.createCriteria().andCidEqualTo(eng4Id).andPlanIdEqualTo(planId);
+            List<Course> courseList = courseMapper.selectByExample(courseExample);
+            if (courseList.size() == 0){
+                throw new SAException(ExceptionEnum.COURSE_NO_EXIST);
+            }
+            Course eng4Course = courseList.get(0);
+
+            // 查找对应学生大英4的成绩,同时建立学生课程扩展对象以便之后存储
+            StuCourseExample stuCourseExample = new StuCourseExample();
+            stuCourseExample.createCriteria().andSidEqualTo(sid).andCidEqualTo(eng4Id);
+            List<StuCourse> stuCourseList = stuCourseMapper.selectByExample(stuCourseExample);
+            StuCourseExtend stuCourseExtend = new StuCourseExtend();
+
+            // 建立未修够课程数组
+            List<StuCourseExtend> undoCourse = new ArrayList<>();
+            // 未修过的情况
+            if (stuCourseList.size() == 0){
+                stuCourseExtend.setCid(eng4Course.getCid());
+                stuCourseExtend.setCname(eng4Course.getCname());
+                stuCourseExtend.setCredit(eng4Course.getCredit());
+                stuCourseExtend.setKcsx(eng4Course.getKcsx());
+                stuCourseExtend.setScore(0.0);
+                // 添加到未修课程中
+                undoCourse.add(stuCourseExtend);
+            }else {
+                // 获取对应的学生-课程关系对象
+                StuCourse stuCourse = stuCourseList.get(0);
+                if (stuCourse.getScore() < 60){
+                    stuCourseExtend.setCid(eng4Course.getCid());
+                    stuCourseExtend.setCname(eng4Course.getCname());
+                    stuCourseExtend.setCredit(eng4Course.getCredit());
+                    stuCourseExtend.setKcsx(eng4Course.getKcsx());
+                    stuCourseExtend.setScore(stuCourse.getScore());
+                    // 添加到未修课程中
+                    undoCourse.add(stuCourseExtend);
+
+                }
+            }
+            // 学生信息扩展对象设置未修课程字段
+            stuInfoExtend.setUndoCourse(undoCourse);
         }
     }
 }

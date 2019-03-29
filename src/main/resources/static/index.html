@@ -12,12 +12,13 @@
         .layui-layout-admin .layui-body {
             overflow: hidden;
         }
+
         /* 防止主页被关闭 */
-        
+
         .layui-tab-title li:first-child .layui-tab-close {
             display: none;
         }
-        
+
         .layui-footer {
             text-align: center;
         }
@@ -25,66 +26,92 @@
 </head>
 
 <body class="layui-layout-body">
-    <div class="layui-layout layui-layout-admin">
-        <div class="layui-header">
-            <div class="layui-logo">学生成绩信息分析系统</div>
-            <ul class="layui-nav layui-layout-right">
-                <li class="layui-nav-item">
-                    <a href="javascript:;">
-                        <img src="images/user-default.png" class="layui-nav-img"> <span id="adminName">贤心</span>
-                    </a>
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">学生成绩信息分析系统</div>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    <img src="images/user-default.png" class="layui-nav-img"> <span id="adminName">贤心</span>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="">基本资料</a></dd>
+                    <dd><a href="">安全设置</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item"><a href="#" onclick="logout()">退出</a></li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                <li class="layui-nav-item layui-this"><a href="#" data-url="welcome" data-title="主页" data-id="00"
+                                                         class="site-demo-active" data-type="tabAdd">主页</a></li>
+                <!--<li class="layui-nav-item"><a href="#" data-url="allStuList" data-title="学生总况" data-id="11"-->
+                                              <!--class="site-demo-active" data-type="tabAdd">学生总况</a></li>-->
+                <!--<li class="layui-nav-item"><a href="#" data-url="allStuInClass" data-title="班级查询" data-id="22"-->
+                                              <!--class="site-demo-active" data-type="tabAdd">班级查询</a></li>-->
+                <!--<li class="layui-nav-item"><a href="#" data-url="allStuInMajor" data-title="专业查询" data-id="33"-->
+                                              <!--class="site-demo-active" data-type="tabAdd">专业查询</a></li>-->
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">全部科目相关</a>
                     <dl class="layui-nav-child">
-                        <dd><a href="">基本资料</a></dd>
-                        <dd><a href="">安全设置</a></dd>
+                        <dd><a href="#" data-url="allStuList" data-title="学生总况" data-id="11"
+                               class="site-demo-active" data-type="tabAdd">学生总况</a></dd>
+                        <dd><a href="#" data-url="allStuInClass" data-title="班级查询" data-id="22"
+                               class="site-demo-active" data-type="tabAdd">班级查询</a></dd>
+                        <dd><a href="#" data-url="allStuInMajor" data-title="专业查询" data-id="33"
+                               class="site-demo-active" data-type="tabAdd">专业查询</a></dd>
                     </dl>
                 </li>
-                <li class="layui-nav-item"><a href="#" onclick="logout()">退出</a></li>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">英语成绩相关</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="#" data-url="engStuList" data-title="学生总况-大英4" data-id="44"
+                               class="site-demo-active" data-type="tabAdd">学生总况-大英4</a></dd>
+                        <dd><a href="#" data-url="engStuListInClass" data-title="班级查询-大英4" data-id="55"
+                               class="site-demo-active" data-type="tabAdd">班级查询-大英4</a></dd>
+                        <dd><a href="#" data-url="engStuListInMajor" data-title="专业查询-大英4" data-id="66"
+                               class="site-demo-active" data-type="tabAdd">专业查询-大英4</a></dd>                    </dl>
+                </li>
             </ul>
-        </div>
-
-        <div class="layui-side layui-bg-black">
-            <div class="layui-side-scroll">
-                <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
-                <ul class="layui-nav layui-nav-tree" lay-filter="test">
-                    <li class="layui-nav-item layui-this"><a href="#" data-url="welcome" data-title="主页" data-id="00" class="site-demo-active" data-type="tabAdd">主页</a></li>
-                    <li class="layui-nav-item"><a href="#" data-url="allStuList" data-title="学生总况" data-id="11" class="site-demo-active" data-type="tabAdd">学生总况</a></li>
-                    <li class="layui-nav-item"><a href="#" data-url="allStuInClass" data-title="班级查询" data-id="22" class="site-demo-active" data-type="tabAdd">班级查询</a></li>
-                    <li class="layui-nav-item"><a href="#" data-url="allStuInMajor" data-title="专业查询" data-id="33" class="site-demo-active" data-type="tabAdd">专业查询</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="layui-body">
-
-            <div class="layui-tab" lay-filter="demo" lay-allowclose="true">
-                <ul class="layui-tab-title">
-                    <li lay-id="00" class="layui-this">主页</li>
-                </ul>
-                <ul class="rightmenu" style="display: none;position: absolute;">
-                    <li data-type="closethis">关闭当前</li>
-                    <li data-type="closeall">关闭所有</li>
-                </ul>
-                <div class="layui-tab-content">
-
-                    <div class="layui-tab-item layui-show">
-                        <iframe data-title="主页" data-frameid="00" scrolling="auto" frameborder="0" src="welcome.html" style="width:100%;height:99%;"></iframe>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="layui-footer">
-            <!-- 底部固定区域 -->
-            Copyright © DreamTech工作组
         </div>
     </div>
 
-    <script type="text/javascript" src="js/jquery-3.3.1.js"></script>
-    <script src="lib/layui/layui.js" charset="utf-8"></script>
-    <script src="js/index.js" charset="utf-8"></script>
-    <script>
+    <div class="layui-body">
 
-    </script>
+        <div class="layui-tab" lay-filter="demo" lay-allowclose="true">
+            <ul class="layui-tab-title">
+                <li lay-id="00" class="layui-this">主页</li>
+            </ul>
+            <ul class="rightmenu" style="display: none;position: absolute;">
+                <li data-type="closethis">关闭当前</li>
+                <li data-type="closeall">关闭所有</li>
+            </ul>
+            <div class="layui-tab-content">
+
+                <div class="layui-tab-item layui-show">
+                    <iframe data-title="主页" data-frameid="00" scrolling="auto" frameborder="0" src="welcome.html"
+                            style="width:100%;height:99%;"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        Copyright © DreamTech工作组
+    </div>
+</div>
+
+<script type="text/javascript" src="js/jquery-3.3.1.js"></script>
+<script src="lib/layui/layui.js" charset="utf-8"></script>
+<script src="js/index.js" charset="utf-8"></script>
+<script>
+
+</script>
 </body>
 
 </html>
