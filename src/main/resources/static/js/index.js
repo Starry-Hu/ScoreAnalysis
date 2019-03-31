@@ -126,16 +126,16 @@ layui.use(['element','layer'], function() {
 });
 
 // 获取当前登录的管理员
-// $(function() {
-//     $.ajax({
-//         type: "get",
-//         url: "admin/getLogined",
-//         dataType: "json",
-//         success: function(response) {
-//             $('#adminName').text(response.data.adminName);
-//         }
-//     });
-// })
+$(function() {
+    $.ajax({
+        type: "get",
+        url: "admin/getLogined",
+        dataType: "json",
+        success: function(response) {
+            $('#adminName').text(response.data.adminName);
+        }
+    });
+})
 
 function logout() {
     $.ajax({

@@ -90,6 +90,7 @@ public class StudentServiceImpl implements StudentService {
 
 
             // 姓名
+            row.getCell(1).setCellType(Cell.CELL_TYPE_STRING);
             String sname = row.getCell(1).getStringCellValue();
             if (sname == null || sname.isEmpty()) {
                 throw new Exception("导入失败(第" + (r + 1) + "行,姓名未填写)");
@@ -138,7 +139,7 @@ public class StudentServiceImpl implements StudentService {
             // 分情况赋予各类选修特定的课程号
             if (kcsxValue.equals("限选")) {
                 cid = "88888888x";
-            } else if (kcsxValue.equals("公选")) {
+            } else if (kcsxValue.equals("任选")) {
                 cid = "99999999x";
             }
 

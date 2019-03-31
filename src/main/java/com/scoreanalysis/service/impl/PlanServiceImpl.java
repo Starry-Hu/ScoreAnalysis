@@ -119,9 +119,9 @@ public class PlanServiceImpl implements PlanService {
                 cid = "88888888x";
                 cname = "限选";
                 course.setKcsx(1);
-            } else if (kcsx.equals("公选")) {
+            } else if (kcsx.equals("任选")) {
                 cid = "99999999x";
-                cname = "公选";
+                cname = "任选";
                 course.setKcsx(2);
             } else {
                 throw new Exception("导入失败(第" + (r + 1) + "行,课程属性填写不正确)");
