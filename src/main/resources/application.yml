@@ -2,3 +2,15 @@ server:
   port: 8080
   servlet:
     context-path: /ScoreAnalysis
+Spring:
+  mail:
+    host: smtp.qq.com
+    username: 1756487384@qq.com
+    password: amxjnhpsuiqmeicj
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
