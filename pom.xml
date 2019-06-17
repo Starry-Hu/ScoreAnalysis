@@ -78,7 +78,7 @@
         <version>3.13</version>
         </dependency>
 
-        <!--发送邮件-->
+        <!-- 发送邮件 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>

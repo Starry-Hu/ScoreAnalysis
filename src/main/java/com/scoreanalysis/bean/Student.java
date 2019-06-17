@@ -7,6 +7,10 @@ public class Student {
 
     private String sclass;
 
+    private String email;
+
+    private String phone;
+
     public String getSid() {
         return sid;
     }
@@ -31,23 +35,19 @@ public class Student {
         this.sclass = sclass;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Student student = (Student) o;
-
-        if (sid != null ? !sid.equals(student.sid) : student.sid != null) return false;
-        if (sname != null ? !sname.equals(student.sname) : student.sname != null) return false;
-        return sclass != null ? sclass.equals(student.sclass) : student.sclass == null;
+    public String getEmail() {
+        return email;
     }
 
-    @Override
-    public int hashCode() {
-        int result = sid != null ? sid.hashCode() : 0;
-        result = 31 * result + (sname != null ? sname.hashCode() : 0);
-        result = 31 * result + (sclass != null ? sclass.hashCode() : 0);
-        return result;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }

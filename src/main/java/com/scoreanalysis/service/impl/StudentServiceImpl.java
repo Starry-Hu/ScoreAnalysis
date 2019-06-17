@@ -15,13 +15,19 @@ import com.scoreanalysis.util.IDGenerator;
 import com.scoreanalysis.util.PageBean;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.mail.internet.MimeMessage;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Project scoreanalysis
@@ -46,6 +52,8 @@ public class StudentServiceImpl implements StudentService {
     private StuInfoExtendMapper stuInfoExtendMapper;
     @Autowired
     private CourseMapper courseMapper;
+    @Autowired
+    private JavaMailSender javaMailSender; //发送邮件相关
 
     /**
      * @Description: 上传学生成绩信息相关，将数据导入student表，stuClass表以及major表
@@ -176,6 +184,7 @@ public class StudentServiceImpl implements StudentService {
             student.setSname(sname);
             student.setSclass(stuClass.getClsid());
 
+
             // 填充到扩展类对象中
             studentExtend.setStudent(student);
             studentExtend.setStuClass(stuClass);
@@ -281,33 +290,71 @@ public class StudentServiceImpl implements StudentService {
         MajorExample majorExample = new MajorExample();
         majorExample.createCriteria().andMidIsNotNull();
 
-        try {
-            List<Student> studentList = studentMapper.selectByExample(studentExample);
-            List<StuCourse> stuCourseList = stuCourseMapper.selectByExample(stuCourseExample);
-            List<StuClass> stuClassList = stuClassMapper.selectByExample(stuClassExample);
-            List<Major> majorList = majorMapper.selectByExample(majorExample);
+        List<Student> studentList = studentMapper.selectByExample(studentExample);
+        List<StuCourse> stuCourseList = stuCourseMapper.selectByExample(stuCourseExample);
+        List<StuClass> stuClassList = stuClassMapper.selectByExample(stuClassExample);
+        List<Major> majorList = majorMapper.selectByExample(majorExample);
 
-            // 数据已空
-            if (studentList.size() == 0 || stuCourseList.size() == 0 ||
-                    stuClassList.size() == 0 || majorList.size() == 0) {
-                throw new SAException(ExceptionEnum.STUDENT_DATA_EMPTY);
-            }
-
-            int n1 = studentMapper.deleteByExample(studentExample);
-            int n2 = stuClassMapper.deleteByExample(stuClassExample);
-            int n3 = majorMapper.deleteByExample(majorExample);
-            int n4 = stuCourseMapper.deleteByExample(stuCourseExample);
-
-            if (n1 > 0 && n2 > 0 && n3 > 0 && n4 > 0) {
-                return n1 + n2 + n3 + n4;
-            }
-            throw new SAException(ExceptionEnum.STUDENT_DATA_DELETE_FAIL);
-        } catch (Exception e) {
-            throw e;
+        // 数据已空
+        if (studentList.size() == 0 || stuCourseList.size() == 0 ||
+                stuClassList.size() == 0 || majorList.size() == 0) {
+            throw new SAException(ExceptionEnum.STUDENT_DATA_EMPTY);
         }
+
+        int n1 = studentMapper.deleteByExample(studentExample);
+        int n2 = stuClassMapper.deleteByExample(stuClassExample);
+        int n3 = majorMapper.deleteByExample(majorExample);
+        int n4 = stuCourseMapper.deleteByExample(stuCourseExample);
+
+        if (n1 > 0 && n2 > 0 && n3 > 0 && n4 > 0) {
+            return n1 + n2 + n3 + n4;
+        }
+        throw new SAException(ExceptionEnum.STUDENT_DATA_DELETE_FAIL);
     }
 
+    // --------------------------------------------------- 通知相关 -----------------------------------------------------
+    /**
+     * 获取学生两种通知方式的内容
+     * @param sid 学号
+     * @return Map<String, String>
+     * @throws Exception
+     */
+    public Map<String, String> getStuInformWay(String sid) throws Exception {
+        Student student = studentMapper.selectByPrimaryKey(sid);
+        String email = student.getEmail();
+        String phone = student.getPhone();
+
+        // 如果两个通知信息都不存在，则抛出相应异常
+        if ((email==null && phone==null )|| email.equals("") && phone.equals("")){
+            throw new SAException(ExceptionEnum.STU_INFORM_NULL);
+        }
+
+        Map<String, String> resultMap = new HashMap<String, String>();
+        // 如果是空则显示给前端为“”，否则照常显示即可
+        resultMap.put("email", (email == null?"":email));
+        resultMap.put("phone", (phone == null?"":phone));
+        return resultMap;
+    }
+
+    /**
+     * 发送邮件通知
+     * @param fromEmail 目的方
+     * @param toEmail 发送方
+     * @param informContent 通知内容
+     * @throws Exception
+     */
+    public void sendMailInform(String fromEmail,String toEmail,String informContent) throws Exception{
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo(toEmail);
+        message.setSubject("毕业学分预警");
+        message.setText(informContent);
+        javaMailSender.send(message);
+    }
+
+
     // --------------------------------------------------获取相关--------------------------------------------------------
+
     /**
      * @Description: 根据学号获取该学生的相关修课信息
      * @Param: [sid]
@@ -579,13 +626,13 @@ public class StudentServiceImpl implements StudentService {
     // --------------------------------------------------英语相关--------------------------------------------------------
 
     /**
-    * @Description: 根据学号查找某个学生的大英4情况(返回pageBean对象，方便统一分页)赋值1
-    * @Param: [sid, pageNum, pageSize]
-    * @return: com.scoreanalysis.util.PageBean<com.scoreanalysis.pojo.StuInfoExtend>
-    * @Author: StarryHu
-    * @Date: 2019/3/29
-    */
-    public PageBean<StuInfoExtend> getStuInfoBySidInEng4(String sid) throws Exception{
+     * @Description: 根据学号查找某个学生的大英4情况(返回pageBean对象 ， 方便统一分页)赋值1
+     * @Param: [sid, pageNum, pageSize]
+     * @return: com.scoreanalysis.util.PageBean<com.scoreanalysis.pojo.StuInfoExtend>
+     * @Author: StarryHu
+     * @Date: 2019/3/29
+     */
+    public PageBean<StuInfoExtend> getStuInfoBySidInEng4(String sid) throws Exception {
         // 获取学生对象 -> 班级 -> 专业
         Student student = studentMapper.selectByPrimaryKey(sid);
         if (student == null) {
@@ -603,7 +650,7 @@ public class StudentServiceImpl implements StudentService {
 
         // ---进行分页处理---
         // 获取全部数量  同时建立pagebean对象
-        PageBean<StuInfoExtend> pBean = new PageBean<>(1,1,1);
+        PageBean<StuInfoExtend> pBean = new PageBean<>(1, 1, 1);
         // 获取pagebean对象的startIndex
         int startIndex = pBean.getStartIndex();
 
@@ -612,7 +659,7 @@ public class StudentServiceImpl implements StudentService {
         stuInfoExtendList.add(stuInfoExtend);
 
         // 处理学生数组的大英4情况（分页的部分数据）
-        handleStuInfoInEng4(stuInfoExtendList,"80710004");
+        handleStuInfoInEng4(stuInfoExtendList, "80710004");
         // 设置list对应的数据对象
         pBean.setList(stuInfoExtendList);
 
@@ -620,13 +667,13 @@ public class StudentServiceImpl implements StudentService {
     }
 
     /**
-    * @Description: 根据班级获取全部学生的大英4情况(带分页)
-    * @Param: [clsId, pageNum, pageSize]
-    * @return: com.scoreanalysis.util.PageBean<com.scoreanalysis.pojo.StuInfoExtend>
-    * @Author: StarryHu
-    * @Date: 2019/3/29
-    */
-    public PageBean<StuInfoExtend> getStuInfoByClsIdWithPageInEng4(String clsId, int pageNum, int pageSize) throws Exception{
+     * @Description: 根据班级获取全部学生的大英4情况(带分页)
+     * @Param: [clsId, pageNum, pageSize]
+     * @return: com.scoreanalysis.util.PageBean<com.scoreanalysis.pojo.StuInfoExtend>
+     * @Author: StarryHu
+     * @Date: 2019/3/29
+     */
+    public PageBean<StuInfoExtend> getStuInfoByClsIdWithPageInEng4(String clsId, int pageNum, int pageSize) throws Exception {
         // 根据班级号获取班级信息，同时获取专业号以此获取对应教学计划号
         StuClass stuClass = stuClassMapper.selectByPrimaryKey(clsId);
         if (stuClass == null) {
@@ -652,7 +699,7 @@ public class StudentServiceImpl implements StudentService {
         List<StuInfoExtend> realDatas = stuInfoExtendMapper.getAllStusBasicInfoByClsIdWithPage(clsId, startIndex, pageSize);
 
         // 处理学生数组的大英4情况（分页的部分数据）
-        handleStuInfoInEng4(realDatas,"80710004");
+        handleStuInfoInEng4(realDatas, "80710004");
         // 设置list对应的数据对象
         pBean.setList(realDatas);
 
@@ -660,13 +707,13 @@ public class StudentServiceImpl implements StudentService {
     }
 
     /**
-    * @Description: 根据专业获取全部学生的大英4信息（带分页）
-    * @Param: [majorId, pageNum, pageSize]
-    * @return: com.scoreanalysis.util.PageBean<com.scoreanalysis.pojo.StuInfoExtend>
-    * @Author: StarryHu
-    * @Date: 2019/3/29
-    */
-    public PageBean<StuInfoExtend> getStuInfoByMajorWithPageInEng4(String majorId, int pageNum, int pageSize) throws Exception{
+     * @Description: 根据专业获取全部学生的大英4信息（带分页）
+     * @Param: [majorId, pageNum, pageSize]
+     * @return: com.scoreanalysis.util.PageBean<com.scoreanalysis.pojo.StuInfoExtend>
+     * @Author: StarryHu
+     * @Date: 2019/3/29
+     */
+    public PageBean<StuInfoExtend> getStuInfoByMajorWithPageInEng4(String majorId, int pageNum, int pageSize) throws Exception {
         // 根据专业号获取对应专业 -> 教学计划id
         Major major = majorMapper.selectByPrimaryKey(majorId);
         if (major == null) {
@@ -690,20 +737,21 @@ public class StudentServiceImpl implements StudentService {
         List<StuInfoExtend> realDatas = stuInfoExtendMapper.getAllStusBasicInfoByMajorWithPage(majorId, startIndex, pageSize);
 
         // 处理学生数组的大英4情况（分页的部分数据）
-        handleStuInfoInEng4(realDatas,"80710004");
+        handleStuInfoInEng4(realDatas, "80710004");
         // 设置list对应的数据对象
         pBean.setList(realDatas);
 
         return pBean;
     }
+
     /**
-    * @Description: 获取全部学生信息的大英4情况（带分页）
-    * @Param: [pageNum, pageSize]
-    * @return: void
-    * @Author: StarryHu
-    * @Date: 2019/3/29
-    */
-    public PageBean<StuInfoExtend> getAllStuInfoWithPageInEng4(int pageNum, int pageSize) throws Exception{
+     * @Description: 获取全部学生信息的大英4情况（带分页）
+     * @Param: [pageNum, pageSize]
+     * @return: void
+     * @Author: StarryHu
+     * @Date: 2019/3/29
+     */
+    public PageBean<StuInfoExtend> getAllStuInfoWithPageInEng4(int pageNum, int pageSize) throws Exception {
         // 获取全部学生扩展信息数组
         List<StuInfoExtend> allDatas = stuInfoExtendMapper.getAllStusBasicInfo();
 
@@ -721,7 +769,7 @@ public class StudentServiceImpl implements StudentService {
         List<StuInfoExtend> realDatas = stuInfoExtendMapper.getAllStusBasicInfoWithPage(startIndex, pageSize);
 
         // 处理学生数组的大英4情况（分页的部分数据）
-        handleStuInfoInEng4(realDatas,"80710004");
+        handleStuInfoInEng4(realDatas, "80710004");
         // 设置list对应的数据对象
         pBean.setList(realDatas);
 
@@ -730,6 +778,7 @@ public class StudentServiceImpl implements StudentService {
 
 
     // --------------------------------------------------内部使用--------------------------------------------------------
+
     /**
      * @Description: 处理多学生（数组）[主要针对根据班级、专业查找情况(同一教学计划)] 的已修课程与教学计划要求全部课程的筛选
      * @Param: [stuInfoExtendList, planId, mustCourses]
@@ -888,13 +937,13 @@ public class StudentServiceImpl implements StudentService {
     }
 
     /**
-    * @Description: 处理学生数组的大英4成绩情况
-    * @Param: [stuInfoExtendList, eng4Id]
-    * @return: void
-    * @Author: StarryHu
-    * @Date: 2019/3/29
-    */
-    private void handleStuInfoInEng4(List<StuInfoExtend> stuInfoExtendList,String eng4Id){
+     * @Description: 处理学生数组的大英4成绩情况
+     * @Param: [stuInfoExtendList, eng4Id]
+     * @return: void
+     * @Author: StarryHu
+     * @Date: 2019/3/29
+     */
+    private void handleStuInfoInEng4(List<StuInfoExtend> stuInfoExtendList, String eng4Id) {
         for (StuInfoExtend stuInfoExtend : stuInfoExtendList) {
             // 获取学号
             String sid = stuInfoExtend.getSid();
@@ -907,7 +956,7 @@ public class StudentServiceImpl implements StudentService {
             CourseExample courseExample = new CourseExample();
             courseExample.createCriteria().andCidEqualTo(eng4Id).andPlanIdEqualTo(planId);
             List<Course> courseList = courseMapper.selectByExample(courseExample);
-            if (courseList.size() == 0){
+            if (courseList.size() == 0) {
                 throw new SAException(ExceptionEnum.COURSE_NO_EXIST);
             }
             Course eng4Course = courseList.get(0);
@@ -921,7 +970,7 @@ public class StudentServiceImpl implements StudentService {
             // 建立未修够课程数组
             List<StuCourseExtend> undoCourse = new ArrayList<>();
             // 未修过的情况
-            if (stuCourseList.size() == 0){
+            if (stuCourseList.size() == 0) {
                 stuCourseExtend.setCid(eng4Course.getCid());
                 stuCourseExtend.setCname(eng4Course.getCname());
                 stuCourseExtend.setCredit(eng4Course.getCredit());
@@ -929,10 +978,10 @@ public class StudentServiceImpl implements StudentService {
                 stuCourseExtend.setScore(0.0);
                 // 添加到未修课程中
                 undoCourse.add(stuCourseExtend);
-            }else {
+            } else {
                 // 获取对应的学生-课程关系对象
                 StuCourse stuCourse = stuCourseList.get(0);
-                if (stuCourse.getScore() < 60){
+                if (stuCourse.getScore() < 60) {
                     stuCourseExtend.setCid(eng4Course.getCid());
                     stuCourseExtend.setCname(eng4Course.getCname());
                     stuCourseExtend.setCredit(eng4Course.getCredit());

@@ -5,6 +5,8 @@
     <id column="sid" jdbcType="VARCHAR" property="sid" />
     <result column="sname" jdbcType="VARCHAR" property="sname" />
     <result column="sclass" jdbcType="VARCHAR" property="sclass" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -65,7 +67,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    sid, sname, sclass
+    sid, sname, sclass, email, phone
   </sql>
   <select id="selectByExample" parameterType="com.scoreanalysis.bean.StudentExample" resultMap="BaseResultMap">
     select
@@ -99,10 +101,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.scoreanalysis.bean.Student">
-    insert into student (sid, sname, sclass
-      )
-    values (#{sid,jdbcType=VARCHAR}, #{sname,jdbcType=VARCHAR}, #{sclass,jdbcType=VARCHAR}
-      )
+    insert into student (sid, sname, sclass, 
+      email, phone)
+    values (#{sid,jdbcType=VARCHAR}, #{sname,jdbcType=VARCHAR}, #{sclass,jdbcType=VARCHAR}, 
+      #{email,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.scoreanalysis.bean.Student">
     insert into student
@@ -116,6 +118,12 @@
       <if test="sclass != null">
         sclass,
       </if>
+      <if test="email != null">
+        email,
+      </if>
+      <if test="phone != null">
+        phone,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="sid != null">
@@ -126,6 +134,12 @@
       </if>
       <if test="sclass != null">
         #{sclass,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        #{phone,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -147,6 +161,12 @@
       <if test="record.sclass != null">
         sclass = #{record.sclass,jdbcType=VARCHAR},
       </if>
+      <if test="record.email != null">
+        email = #{record.email,jdbcType=VARCHAR},
+      </if>
+      <if test="record.phone != null">
+        phone = #{record.phone,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -156,7 +176,9 @@
     update student
     set sid = #{record.sid,jdbcType=VARCHAR},
       sname = #{record.sname,jdbcType=VARCHAR},
-      sclass = #{record.sclass,jdbcType=VARCHAR}
+      sclass = #{record.sclass,jdbcType=VARCHAR},
+      email = #{record.email,jdbcType=VARCHAR},
+      phone = #{record.phone,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -170,13 +192,21 @@
       <if test="sclass != null">
         sclass = #{sclass,jdbcType=VARCHAR},
       </if>
+      <if test="email != null">
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
     </set>
     where sid = #{sid,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.scoreanalysis.bean.Student">
     update student
     set sname = #{sname,jdbcType=VARCHAR},
-      sclass = #{sclass,jdbcType=VARCHAR}
+      sclass = #{sclass,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR}
     where sid = #{sid,jdbcType=VARCHAR}
   </update>
 </mapper>

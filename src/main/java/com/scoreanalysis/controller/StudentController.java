@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Project scoreanalysis
@@ -215,7 +216,48 @@ public class StudentController extends BaseController {
     }
 
 
+    // ---------------------------------------- 通知相关 --------------------------------------------
+    /*** 
+    * @Description: 根据学号获取该学生的联系方式
+    * @Param: [sid] 
+    * @return: com.scoreanalysis.util.BaseResponse 
+    * @Author: StarryHu
+    * @Date: 2019/6/17 
+    */ 
+    @GetMapping("/getStuInformWay")
+    public BaseResponse getStuInform(String sid) throws Exception {
+        // 判断学号是否填写
+        if (sid == null || sid.trim().equals("")) {
+            return ajaxFail(ResultEnum.STUDENT_INFO_NOT_FULL);
+        }
 
+        Map<String,String> resultMap = studentService.getStuInformWay(sid);
+        return ajaxSucc(resultMap,ResultEnum.INFORM_WAY_SEARCH_SUCCESS);
+    }
+
+    /*** 
+    * @Description: 对学生发送邮件进行通知 
+    * @Param: [toEmail, informContent] 
+    * @return: com.scoreanalysis.util.BaseResponse 
+    * @Author: StarryHu
+    * @Date: 2019/6/17 
+    */ 
+    @PostMapping("/sendMailInform")
+    public BaseResponse sendMailInform(String toEmail,String informContent) throws Exception {
+        // 如果学生的邮箱信息为空，则抛出异常
+        if (toEmail == null || toEmail.equals("")){
+            return ajaxFail(ResultEnum.INFORM_EMAIL_NULL);
+        }
+        // 如果代码忘记配置通知内容 - 供后期维护
+        if (informContent == null ||informContent.equals("")){
+            return ajaxFail(ResultEnum.INFORM_CONTENT_NULL);
+        }
+        String fromEmail = "1756487384@qq.com";
+
+        studentService.sendMailInform(fromEmail,toEmail,informContent);
+
+        return ajaxSucc(null,ResultEnum.INFORM_EMAIL_SUCCESS);
+    }
 
     // ---------------------------------------- 单个功能 未与分页相关联  暂时搁置--------------------------------------------
     /**

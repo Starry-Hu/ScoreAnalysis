@@ -86,7 +86,10 @@ public enum ExceptionEnum {
     STU_COURSE_UPDATE_FAIL(225,"学生课程信息更新失败"),
     STU_COURSE_SEARCH_FAIL(226,"学生课程信息查找失败"),
 
-
+    // 通知相关
+    STU_INFORM_NULL(101,"学生联系方式不存在"),
+    STU_EMAIL_INFORM_NULL(102,"学生邮箱联系方式不存在"),
+    STU_PHONE_INFORM_NULL(103,"学生电话联系方式不存在"),
     ;
 
     private Integer code;

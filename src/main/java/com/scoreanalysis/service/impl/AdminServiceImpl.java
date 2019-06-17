@@ -40,16 +40,13 @@ public class AdminServiceImpl implements AdminService {
         admin.setPsw(psw);
         admin.setIsdel(0);
 
-        try {
-            int n = adminMapper.insert(admin);
-            // 添加成功
-            if (n > 0) {
-                return n;
-            }
-            throw new SAException(ExceptionEnum.ADMIN_ADD_FAIL);
-        } catch (Exception e) {
-            throw e;
+        int n = adminMapper.insert(admin);
+        // 添加成功
+        if (n > 0) {
+            return n;
         }
+        throw new SAException(ExceptionEnum.ADMIN_ADD_FAIL);
+
     }
 
     /**
@@ -63,16 +60,12 @@ public class AdminServiceImpl implements AdminService {
         Admin admin = new Admin();
         admin.setId(uuid);
         admin.setIsdel(1);
-        try {
-            int n = adminMapper.updateByPrimaryKey(admin);
-            // 删除成功
-            if (n > 0) {
-                return n;
-            }
-            throw new SAException(ExceptionEnum.ADMIN_DELETE_FAIL);
-        } catch (Exception e) {
-            throw e;
+        int n = adminMapper.updateByPrimaryKey(admin);
+        // 删除成功
+        if (n > 0) {
+            return n;
         }
+        throw new SAException(ExceptionEnum.ADMIN_DELETE_FAIL);
     }
 
     /**
@@ -88,15 +81,11 @@ public class AdminServiceImpl implements AdminService {
         admin.setName(name);
         admin.setPsw(psw);
 
-        try {
-            int n = adminMapper.updateByPrimaryKey(admin);
-            if (n > 0) {
-                return n;
-            }
-            throw new SAException(ExceptionEnum.ADMIN_UPDATE_FAIL);
-        } catch (Exception e) {
-            throw e;
+        int n = adminMapper.updateByPrimaryKey(admin);
+        if (n > 0) {
+            return n;
         }
+        throw new SAException(ExceptionEnum.ADMIN_UPDATE_FAIL);
     }
 
     /**
@@ -107,16 +96,12 @@ public class AdminServiceImpl implements AdminService {
      * @Date: 2019/2/9
      */
     public Admin getAdminByuuid(String id) throws Exception {
-        try {
-            Admin admin = adminMapper.selectByPrimaryKey(id);
-            // 管理员不存在
-            if (admin == null) {
-                throw new SAException(ExceptionEnum.ADMIN_NO_EXIST);
-            }
-            return admin;
-        } catch (Exception e) {
-            throw e;
+        Admin admin = adminMapper.selectByPrimaryKey(id);
+        // 管理员不存在
+        if (admin == null) {
+            throw new SAException(ExceptionEnum.ADMIN_NO_EXIST);
         }
+        return admin;
     }
 
     /**
@@ -129,26 +114,18 @@ public class AdminServiceImpl implements AdminService {
     public Admin getAdminByAdminId(String adminId) throws Exception {
         AdminExample adminExample = new AdminExample();
         adminExample.createCriteria().andAdminIdEqualTo(adminId);
-        try {
-            List<Admin> datas = adminMapper.selectByExample(adminExample);
-            // 查出来整个数据是空的  管理员不存在
-            if (datas.isEmpty()) {
-                throw new SAException(ExceptionEnum.ADMIN_NO_EXIST);
-            }
-            // 若不空 则取第一条判断
-            Admin admin = datas.get(0);
-            if (admin == null || admin.getIsdel() == 1) {
-                throw new SAException(ExceptionEnum.ADMIN_NO_EXIST);
-            }
-            return admin;
-        } catch (Exception e) {
-            throw e;
+        List<Admin> datas = adminMapper.selectByExample(adminExample);
+        // 查出来整个数据是空的  管理员不存在
+        if (datas.isEmpty()) {
+            throw new SAException(ExceptionEnum.ADMIN_NO_EXIST);
         }
+        // 若不空 则取第一条判断
+        Admin admin = datas.get(0);
+        if (admin == null || admin.getIsdel() == 1) {
+            throw new SAException(ExceptionEnum.ADMIN_NO_EXIST);
+        }
+        return admin;
     }
-
-
-
-
 
 
     /**

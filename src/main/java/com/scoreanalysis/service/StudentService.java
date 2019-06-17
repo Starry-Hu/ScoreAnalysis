@@ -5,6 +5,7 @@ import com.scoreanalysis.util.PageBean;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 public interface StudentService {
     // 上传学生信息excel
@@ -39,6 +40,15 @@ public interface StudentService {
 
     // 获取全部学生信息的大英4情况（带分页）
     PageBean<StuInfoExtend> getAllStuInfoWithPageInEng4(int pageNum, int pageSize) throws Exception;
+
+    // --------------------------------------------------- 通知相关 -----------------------------------------------------
+    // 获取学生两种通知方式的内容
+    Map getStuInformWay(String sid) throws Exception;
+
+    // 发送邮件通知
+    void sendMailInform(String fromEmail,String toEmail,String informContent) throws Exception;
+
+    //电话通知
 
     // ---------------------------------------------- 单个功能 未与分页相关联  暂时搁置--------------------------------------
     // 获取某学生的修课情况
