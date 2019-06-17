@@ -273,7 +273,8 @@
 若以修够，请忽略此条消息；若未修够，请及时安排补考和重修，以免耽误毕业进程。`
                             },
                             success: function (response) {
-                                layer.msg("邮件通知成功");
+                                var message = response.msg;
+                                layer.msg(message);
                                 if (response.code == 202) {
                                     isInformed = true; // 表示通知过了
                                 }
