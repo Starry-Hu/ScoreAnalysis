@@ -80,6 +80,13 @@
                     </button>
                 </div>
             </div>
+            <div class="layui-row" style="margin-top: 10px">
+                <div class="layui-col-md6">
+                    <i class="layui-icon" style="opacity: 0"></i>
+                </div>
+                <div class="layui-col-md6">
+                    <button type="button" class="layui-btn" id="uploadInformWay"><i class="layui-icon"></i>上传学生联系方式（电话和邮箱）</button>
+                </div>
         </div>
     </div>
 </div>
@@ -114,6 +121,14 @@
             layer.open({
                 type: 2,
                 content: ['addStusExcel.html', 'no'],
+                area: ['500px', '300px']
+            });
+        })
+
+        $('#uploadInformWay').click(function () {
+            layer.open({
+                type: 2,
+                content: ['addInformExcel.html', 'no'],
                 area: ['500px', '300px']
             });
         })

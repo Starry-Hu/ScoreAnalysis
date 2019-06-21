@@ -5,16 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>添加教学计划Excel</title>
+    <title>添加学生联系方式Excel</title>
     <link href="lib/layui/css/layui.css" rel="stylesheet" type="text/css"/>
     <script src="js/jquery-3.3.1.js"></script>
     <script src="lib/layui/layui.js"></script>
 
     <style>
         .layui-form-label {
-            width: 100px;
+            width: 110px;
         }
-
+        .layui-input-block{
+            margin-left: 140px;
+            width: 250px;
+        }
         form {
             width: 400px;
             margin: 30px auto;
@@ -31,15 +34,16 @@
 <div>
     <form id="editForm" class="layui-form">
         <div class="layui-form-item">
-            <label class="layui-form-label must" for="planName">教学计划名称</label>
-            <div class="layui-input-inline">
-                <input type="text" name="planName" id="planName" required placeholder="请输入教学计划名称"
-                       autocomplete="off" class="layui-input">
+            <label class="layui-form-label must">所属班级</label>
+            <div class="layui-input-block">
+                <select name="stuClass" id="stuClass">
+                    <option value=""></option>
+                </select>
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label must" for="uploadPlan">对应文件</label>
-            <button type="button" class="layui-btn" id="uploadPlan"><i class="layui-icon"></i>上传教学计划文件</button>
+            <label class="layui-form-label must" for="uploadInformWay">对应文件</label>
+            <button type="button" class="layui-btn" id="uploadInformWay"><i class="layui-icon"></i>上传学生联系方式文件</button>
             <input class="layui-upload-file" type="file" accept="excel" name="file">
         </div>
         <div class="layui-form-item">
@@ -51,22 +55,42 @@
 </div>
 
 <script>
-    layui.use(['upload'], function () {
-            var upload = layui.upload;
+    layui.use(['form','upload'], function () {
+        var form = layui.form;
+        var upload = layui.upload;
+
+            // 获取全部班级信息
+            $(function () {
+                $.ajax({
+                    type: "get",
+                    url: "/ScoreAnalysis/class/getAllClasses", // 需要带上项目名(只有上传文件的时候不需要)
+                    dataType: "json",
+                    async: false,
+                    success: function(response) {
+                        for (let i = 0; i < response.data.length; i++) {
+                            const element = response.data[i];
+                            var $option = `<option value='${element.clsid}'> ${element.clsName}</option>`;
+                            $('#stuClass').append($option);
+                        }
+                        form.render();
+                    }
+                });
+            })
+
             //选完文件后不自动上传
             upload.render({
-                elem: '#uploadPlan',
-                url: "plan/uploadAddCourses", //上传接口
+                elem: '#uploadInformWay',
+                url: "student/uploadStuInformWay", //上传接口
                 accept: 'file', //普通文件
                 exts: 'xls|xlsx', //允许上传的文件后缀
                 auto: false,
                 bindAction: '#bindFile',
                 before: function () {
-                    this.data = {"planName": $("#planName").val()}//携带额外的数据
-                    layer.load(2); // loading状态
+                    this.data = {"clsId": $("#stuClass").val()}//携带额外的数据
+                    // layer.load(2); // loading状态
                 },
                 done: function (response) {
-                    layer.closeAll('loading'); //加载完成，关闭loading
+                    // layer.closeAll('loading'); //加载完成，关闭loading
                     layer.msg(response.msg);
                     //上传完毕回调
                 },
@@ -78,7 +102,7 @@
 
         // 提交表单
         $('#submit').click(function () {
-            if ($("#planName").val() == "" || $('input[name=file]').val() == "") {
+            if ($("#stuClass").val() == "" || $('input[name=file]').val() == "") {
                 layer.msg("请确保所需信息填写完毕");
                 return;
             }

@@ -218,6 +218,33 @@ public class StudentController extends BaseController {
 
     // ---------------------------------------- 通知相关 --------------------------------------------
     /*** 
+    * @Description: 上传某班级学生对应的联系方式文件（前提是已经上传了学生成绩信息，即学生对应对象已存在）
+    * @Param: [file, clsId] 
+    * @return: com.scoreanalysis.util.BaseResponse 
+    * @Author: StarryHu
+    * @Date: 2019/6/21 
+    */ 
+    @ResponseBody
+    @PostMapping("/uploadStuInformWay")
+    public BaseResponse addStuInformWay(MultipartFile file, String clsId) throws Exception {
+        // 获取文件名称
+        String fileName = file.getOriginalFilename();
+        // 检查格式是否正确
+        boolean isValidate = excelImportUtil.validateExcel(fileName);
+        if (!isValidate) {
+            return ajaxFail(ResultEnum.EXCEL_FORM_ERROR);
+        }
+        // 判断excel文件类型
+        boolean isExcel2003 = excelImportUtil.isExcel2003(fileName);
+
+        // 导入对应班级的学生联系方式信息
+        studentService.batchUploadInformWay(file,clsId);
+
+        // 学生通知联系方式添加成功
+        return ajaxSucc(null, ResultEnum.INFORM_WAY_ADD_SUCCESS);
+    }
+    
+    /*** 
     * @Description: 根据学号获取该学生的联系方式
     * @Param: [sid] 
     * @return: com.scoreanalysis.util.BaseResponse 

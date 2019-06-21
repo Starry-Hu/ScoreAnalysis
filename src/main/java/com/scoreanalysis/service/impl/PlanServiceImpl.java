@@ -1,5 +1,6 @@
 package com.scoreanalysis.service.impl;
 
+import com.alibaba.druid.util.StringUtils;
 import com.scoreanalysis.bean.Course;
 import com.scoreanalysis.bean.CourseExample;
 import com.scoreanalysis.bean.Plan;
@@ -87,10 +88,17 @@ public class PlanServiceImpl implements PlanService {
             if (row == null) {
                 continue;
             }
+            // 根据该行第一列元素判断是否为空，来确定是否读取这一行的数据
+            // 用于解决POI读取最大行数时将带格式空行读取或存在空行，导致批量导入失败的问题
+            if (row.getCell(0) == null){
+                continue;
+            }
 
-            // 判断每个单元格的值，同时生成对象
             course = new Course();
 
+            // 班级ID
+            // 并且根据该行第一列元素判断是否为空，来确定是否读取这一行的数据
+            // 用于解决POI读取最大行数时将带格式空行读取或存在空行，导致批量导入失败的问题
             row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
             String cid = row.getCell(0).getStringCellValue();
             if (cid == null || cid.isEmpty()) {

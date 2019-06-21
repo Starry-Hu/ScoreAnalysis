@@ -74,12 +74,13 @@ public enum  ResultEnum {
     CLASS_INFO_NOT_FULL(211,"信息填写不完全"),
 
     // 通知相关
-    INFORM_WAY_SEARCH_SUCCESS(201,"学生通知方式获取成功"),
-    INFORM_EMAIL_SUCCESS(202,"邮件通知成功"),
-    INFORM_PHONE_SUCCESS(203,"短信通知成功"),
-    INFORM_EMAIL_NULL(204,"学生邮箱联系方式不存在"),
-    INFORM_PHONE_NULL(205,"学生电话联系方式不存在"),
-    INFORM_CONTENT_NULL(206,"系统未配置邮件通知内容，请检查"),
+    INFORM_WAY_SEARCH_SUCCESS(201,"学生通知联系方式获取成功"),
+    INFORM_WAY_ADD_SUCCESS(202,"学生通知联系方式添加成功"),
+    INFORM_EMAIL_SUCCESS(203,"邮件通知成功"),
+    INFORM_PHONE_SUCCESS(204,"短信通知成功"),
+    INFORM_EMAIL_NULL(205,"学生邮箱联系方式不存在"),
+    INFORM_PHONE_NULL(206,"学生电话联系方式不存在"),
+    INFORM_CONTENT_NULL(207,"系统未配置邮件通知内容，请检查"),
     ;
     private Integer code;
     private String msg;

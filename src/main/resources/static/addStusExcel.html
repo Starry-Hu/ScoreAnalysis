@@ -87,8 +87,10 @@
                 bindAction: '#bindFile',
                 before: function () {
                     this.data = {"planId": $("#plan").val()}//携带额外的数据
+                    layer.load(2); // loading状态
                 },
                 done: function (response) {
+                    layer.closeAll('loading'); //加载完成，关闭loading
                     layer.msg(response.msg);
                     //上传完毕回调
                 },

@@ -17,12 +17,10 @@ import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.mail.internet.MimeMessage;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,8 +83,12 @@ public class StudentServiceImpl implements StudentService {
             if (row == null) {
                 continue;
             }
+            // 根据该行第一列元素判断是否为空，来确定是否读取这一行的数据
+            // 用于解决POI读取最大行数时将带格式空行读取或存在空行，导致批量导入失败的问题
+            if (row.getCell(0) == null){
+                continue;
+            }
 
-            // 判断每个单元格的值，同时生成对象
             studentExtend = new StudentExtend();
 
             // 学号
@@ -313,6 +315,71 @@ public class StudentServiceImpl implements StudentService {
     }
 
     // --------------------------------------------------- 通知相关 -----------------------------------------------------
+    /*** 
+    * @Description: 上传学生对应的联系方式文件（前提是已经上传了学生成绩信息，即学生对应对象已存在）
+    * @Param: [file] 学号-姓名-电话-邮箱
+    * @return: void 
+    * @Author: StarryHu
+    * @Date: 2019/6/21 
+    */ 
+    @Transactional(readOnly = false, rollbackFor = Exception.class)
+    public void batchUploadInformWay(MultipartFile file,String clsId) throws Exception{
+        InputStream is = file.getInputStream();
+        // 使用spring自带的兼容2003/2007
+        Workbook wb = WorkbookFactory.create(is);
+
+        Sheet sheet = wb.getSheetAt(0);
+        if (sheet == null) {
+            throw new SAException(ExceptionEnum.UPLOAD_EMPTY);
+        }
+
+        for (int r = 1; r <= sheet.getLastRowNum(); r++) {
+            //sheet.getLastRowNum() 的值是 10，所以Excel表中的数据至少是10条；不然报错 NullPointerException
+            //r = 1 表示从第二行开始循环 如果你的第二行开始是数据
+            Row row = sheet.getRow(r);//通过sheet表单对象得到 行对象
+            if (row == null) {
+                continue;
+            }
+            // 根据该行第一列元素判断是否为空，来确定是否读取这一行的数据
+            // 用于解决POI读取最大行数时将带格式空行读取或存在空行，导致批量导入失败的问题
+            if (row.getCell(0) == null){
+                continue;
+            }
+
+
+            // 学号
+            row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
+            String sid = row.getCell(0).getStringCellValue();
+            if (sid == null || sid.isEmpty()) {
+                throw new Exception("导入失败(第" + (r + 1) + "行,学号未填写)");
+            }
+            // 根据学号和班级查找学生对象(如果为空，则抛出异常)
+            StudentExample studentExample = new StudentExample();
+            studentExample.createCriteria().andSidEqualTo(sid).andSclassEqualTo(clsId);
+            List<Student> studentList = studentMapper.selectByExample(studentExample);
+            if (studentList.size() == 0){
+                throw new Exception("导入失败(第" + (r + 1) + "行,学生对应成绩信息未录入，请确保该学生属于该班级且该学生成绩信息提前录入完毕)");
+            }
+            // 如果存在则获取学生对象
+            Student student = studentList.get(0);
+
+            // --- 联系方式（非必需） ---
+            // 电话号码
+            row.getCell(2).setCellType(Cell.CELL_TYPE_STRING);
+            String phone = row.getCell(2).getStringCellValue();
+
+            // 邮箱
+            row.getCell(3).setCellType(Cell.CELL_TYPE_STRING);
+            String email = row.getCell(3).getStringCellValue();
+
+            // 设置对应的联系方式
+            student.setPhone(phone);
+            student.setEmail(email);
+            studentMapper.updateByPrimaryKeySelective(student);
+        }
+
+    }
+
     /**
      * 获取学生两种通知方式的内容
      * @param sid 学号

@@ -42,6 +42,9 @@ public interface StudentService {
     PageBean<StuInfoExtend> getAllStuInfoWithPageInEng4(int pageNum, int pageSize) throws Exception;
 
     // --------------------------------------------------- 通知相关 -----------------------------------------------------
+    // 上传学生联系方式（电话和邮箱）
+    void batchUploadInformWay(MultipartFile file,String clsId) throws Exception;
+
     // 获取学生两种通知方式的内容
     Map getStuInformWay(String sid) throws Exception;
 

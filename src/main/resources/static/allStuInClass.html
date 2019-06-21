@@ -93,6 +93,7 @@
         table.render({
             elem: '#students',
             toolbar: 'default',
+            loading: true, //翻页加loading
             url: 'student/getStuInfoByStuClsWithPage', //数据接口(不需要带项目名)
             parseData: function (res) { //res 即为原始返回的数据
                 // 如果获取错误，则返回错误信息
@@ -230,14 +231,13 @@
         table.on('tool(students)', function (obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
             var data = obj.data //获得当前行数据
                 , layEvent = obj.event; //获得 lay-event 对应的值
-            console.log(data);
             if (layEvent == 'inform') {
                 // 存储当前点击的工具栏通知按钮（便于之后改变颜色）
                 var buttonTool = $(this);
                 // 判断是否被通知过
                 var isInformed = false;
                 // 获取学生的联系方式
-                var email = "", phone = "";
+                var email = "", phone = "", open = true;
                 jQuery.ajax({
                     type: "get",
                     url: "/ScoreAnalysis/student/getStuInformWay?sid=" + data.sid, // 需要带上项目名(只有上传文件的时候不需要)
@@ -250,9 +250,11 @@
                         }
                         else {
                             layer.msg(response.msg);
+                            open = false; //联系方式不存在  直接返回  不打开后面的了
                         }
                     }
                 });
+                if (!open)  return;
                 layer.open({
                     content: '学生电话：' + phone + '<br>学生邮箱：' + email + '<br>'
                     , btn: ['短信通知', '邮件通知']
@@ -280,8 +282,6 @@
                                 }
                             }
                         });
-
-
                     }
                     , end: function () { // 层被关闭时的回调
                         if (isInformed) {
