@@ -11,6 +11,7 @@ import com.scoreanalysis.pojo.StuCourseExtend;
 import com.scoreanalysis.pojo.StuInfoExtend;
 import com.scoreanalysis.pojo.StudentExtend;
 import com.scoreanalysis.service.StudentService;
+import com.scoreanalysis.util.ExcelImportUtil;
 import com.scoreanalysis.util.IDGenerator;
 import com.scoreanalysis.util.PageBean;
 import org.apache.poi.ss.usermodel.*;
@@ -80,12 +81,10 @@ public class StudentServiceImpl implements StudentService {
             //sheet.getLastRowNum() 的值是 10，所以Excel表中的数据至少是10条；不然报错 NullPointerException
             //r = 1 表示从第二行开始循环 如果你的第二行开始是数据
             Row row = sheet.getRow(r);//通过sheet表单对象得到 行对象
-            if (row == null) {
-                continue;
-            }
-            // 根据该行第一列元素判断是否为空，来确定是否读取这一行的数据
-            // 用于解决POI读取最大行数时将带格式空行读取或存在空行，导致批量导入失败的问题
-            if (row.getCell(0) == null){
+
+            // 1.到终点了则退出循环
+            // 2.解决POI读取最大行数时将带格式空行读取或存在空行，导致批量导入失败的问题
+            if (row == null || ExcelImportUtil.isRowEmpty(row)) {
                 continue;
             }
 
@@ -340,12 +339,11 @@ public class StudentServiceImpl implements StudentService {
             if (row == null) {
                 continue;
             }
-            // 根据该行第一列元素判断是否为空，来确定是否读取这一行的数据
-            // 用于解决POI读取最大行数时将带格式空行读取或存在空行，导致批量导入失败的问题
-            if (row.getCell(0) == null){
+            // 1.到终点了则退出循环
+            // 2.解决POI读取最大行数时将带格式空行读取或存在空行，导致批量导入失败的问题
+            if (row == null || ExcelImportUtil.isRowEmpty(row)) {
                 continue;
             }
-
 
             // 学号
             row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);

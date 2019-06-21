@@ -1,6 +1,5 @@
 package com.scoreanalysis.service.impl;
 
-import com.alibaba.druid.util.StringUtils;
 import com.scoreanalysis.bean.Course;
 import com.scoreanalysis.bean.CourseExample;
 import com.scoreanalysis.bean.Plan;
@@ -10,6 +9,7 @@ import com.scoreanalysis.dao.PlanMapper;
 import com.scoreanalysis.enums.ExceptionEnum;
 import com.scoreanalysis.exception.SAException;
 import com.scoreanalysis.service.PlanService;
+import com.scoreanalysis.util.ExcelImportUtil;
 import com.scoreanalysis.util.IDGenerator;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,17 +88,16 @@ public class PlanServiceImpl implements PlanService {
             if (row == null) {
                 continue;
             }
-            // 根据该行第一列元素判断是否为空，来确定是否读取这一行的数据
-            // 用于解决POI读取最大行数时将带格式空行读取或存在空行，导致批量导入失败的问题
-            if (row.getCell(0) == null){
+
+            // 1.到终点了则退出循环
+            // 2.解决POI读取最大行数时将带格式空行读取或存在空行，导致批量导入失败的问题
+            if (row == null || ExcelImportUtil.isRowEmpty(row)) {
                 continue;
             }
 
             course = new Course();
 
             // 班级ID
-            // 并且根据该行第一列元素判断是否为空，来确定是否读取这一行的数据
-            // 用于解决POI读取最大行数时将带格式空行读取或存在空行，导致批量导入失败的问题
             row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
             String cid = row.getCell(0).getStringCellValue();
             if (cid == null || cid.isEmpty()) {
