@@ -14,3 +14,6 @@ Spring:
           starttls:
             enable: true
             required: true
+spring:
+  activemq:
+    broker-url: tcp://192.168.25.135:61616

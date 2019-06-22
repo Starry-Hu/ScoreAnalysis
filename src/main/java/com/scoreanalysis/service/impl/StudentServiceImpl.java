@@ -336,12 +336,9 @@ public class StudentServiceImpl implements StudentService {
             //sheet.getLastRowNum() 的值是 10，所以Excel表中的数据至少是10条；不然报错 NullPointerException
             //r = 1 表示从第二行开始循环 如果你的第二行开始是数据
             Row row = sheet.getRow(r);//通过sheet表单对象得到 行对象
-            if (row == null) {
-                continue;
-            }
-            // 1.到终点了则退出循环
-            // 2.解决POI读取最大行数时将带格式空行读取或存在空行，导致批量导入失败的问题
-            if (row == null || ExcelImportUtil.isRowEmpty(row)) {
+            // 1.到终点了row为null则退出循环
+            // 2.解决POI读取最大行数时将带格式空行读取或存在空行，导致批量导入失败的问题|| ExcelImportUtil.isRowEmpty(row)
+            if (row == null ) {
                 continue;
             }
 
@@ -351,6 +348,7 @@ public class StudentServiceImpl implements StudentService {
             if (sid == null || sid.isEmpty()) {
                 throw new Exception("导入失败(第" + (r + 1) + "行,学号未填写)");
             }
+
             // 根据学号和班级查找学生对象(如果为空，则抛出异常)
             StudentExample studentExample = new StudentExample();
             studentExample.createCriteria().andSidEqualTo(sid).andSclassEqualTo(clsId);
