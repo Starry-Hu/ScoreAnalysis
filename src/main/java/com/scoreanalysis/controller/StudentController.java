@@ -286,6 +286,31 @@ public class StudentController extends BaseController {
         return ajaxSucc(null,ResultEnum.INFORM_EMAIL_SUCCESS);
     }
 
+    /***
+     * @Description: 对学生发送短信进行通知
+     * @Param: [toPhone, informContent]
+     * @return: com.scoreanalysis.util.BaseResponse
+     * @Author: StarryHu
+     * @Date: 2019/6/20
+     */
+    @PostMapping("/sendSMSInform")
+    public BaseResponse sendSMSInform(String toPhone,String informContent) throws Exception {
+        // 如果学生的邮箱信息为空，则抛出异常
+        if (toPhone == null || toPhone.equals("")){
+            return ajaxFail(ResultEnum.INFORM_EMAIL_NULL);
+        }
+        // 如果代码忘记配置通知内容 - 供后期维护
+        if (informContent == null ||informContent.equals("")){
+            return ajaxFail(ResultEnum.INFORM_CONTENT_NULL);
+        }
+        String fromUid = "小葫芦呀";
+        String fromKey = "d41d8cd98f00b204e980";
+
+        studentService.sendSMSInform(fromUid,fromKey,toPhone,informContent);
+
+        return ajaxSucc(null,ResultEnum.INFORM_PHONE_SUCCESS);
+    }
+
     // ---------------------------------------- 单个功能 未与分页相关联  暂时搁置--------------------------------------------
     /**
      * @Description: 根据学号获取该学生的修课情况（返回为学生信息扩展对象）

@@ -79,7 +79,7 @@ public enum  ResultEnum {
     INFORM_EMAIL_SUCCESS(203,"邮件通知成功"),
     INFORM_PHONE_SUCCESS(204,"短信通知成功"),
     INFORM_EMAIL_NULL(205,"学生邮箱联系方式不存在"),
-    INFORM_PHONE_NULL(206,"学生电话联系方式不存在"),
+    INFORM_PHONE_NULL(206,"学生短信联系方式不存在"),
     INFORM_CONTENT_NULL(207,"系统未配置邮件通知内容，请检查"),
     ;
     private Integer code;

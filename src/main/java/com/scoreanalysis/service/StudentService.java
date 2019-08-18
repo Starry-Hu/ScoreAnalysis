@@ -51,7 +51,8 @@ public interface StudentService {
     // 发送邮件通知
     void sendMailInform(String fromEmail,String toEmail,String informContent) throws Exception;
 
-    //电话通知
+    // 发送短信通知
+    void sendSMSInform(String fromUid,String fromKey,String toPhone,String informContent) throws Exception;
 
     // ---------------------------------------------- 单个功能 未与分页相关联  暂时搁置--------------------------------------
     // 获取某学生的修课情况

@@ -14,6 +14,7 @@ import com.scoreanalysis.service.StudentService;
 import com.scoreanalysis.util.ExcelImportUtil;
 import com.scoreanalysis.util.IDGenerator;
 import com.scoreanalysis.util.PageBean;
+import com.scoreanalysis.util.SMSUtil;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
@@ -401,8 +402,8 @@ public class StudentServiceImpl implements StudentService {
 
     /**
      * 发送邮件通知
-     * @param fromEmail 目的方
-     * @param toEmail 发送方
+     * @param fromEmail 发送方
+     * @param toEmail 目的方
      * @param informContent 通知内容
      * @throws Exception
      */
@@ -415,6 +416,20 @@ public class StudentServiceImpl implements StudentService {
         javaMailSender.send(message);
     }
 
+    /**
+     * 发送SMS短信通知
+     * @param fromUid 发送方sms用户id
+     * @param fromKey 发送方接口密钥
+     * @param toPhone 短信发送目标号码
+     * @param informContent 通知内容
+     * @throws Exception
+     */
+    public void sendSMSInform(String fromUid,String fromKey,String toPhone,String informContent) throws Exception{
+        // 发送短信
+        int resultCode = SMSUtil.send(fromUid,fromKey,toPhone,informContent);
+        // 获取发送情况
+        SMSUtil.getSendCondition(resultCode);
+    }
 
     // --------------------------------------------------获取相关--------------------------------------------------------
 

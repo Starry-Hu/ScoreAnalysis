@@ -42,8 +42,6 @@ public enum ExceptionEnum {
     STUDENT_DATA_DELETE_FAIL(228,"学生相关数据删除失败！"),
     STUDENT_DATA_EMPTY(229,"学生相关数据为空！"),
 
-
-
     // 课程相关
     COURSE_EXIST(221,"课程已存在"),
     COURSE_NO_EXIST(222,"课程不存在"),
@@ -67,8 +65,6 @@ public enum ExceptionEnum {
     PLAN_COURSE_DELETE_FAIL(224,"教学计划删除失败"),
     PLAN_COURSE_UPDATE_FAIL(225,"教学计划更新失败"),
     PLAN_COURSE_SEARCH_FAIL(226,"教学计划查找失败"),
-
-
 
     // 班级相关
     CLASS_EXIST(101,"班级已经存在"),
